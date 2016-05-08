@@ -171,7 +171,9 @@ function collisionHandler (bullet, boss) {
 	boss.animations.play('flinch', 5, false);
   boss.health -= 1;
   if (boss.health <= 0){
-  	game.input.keyboard.stop();
+  	game.input.keyboard.destroy();
+  	knight.body.velocity.x = 0;
+  	knight.body.velocity.y = 0;
   	boss.animations.play('die', 5, false);
   	setTimeout(function(){
     	boss.kill();
