@@ -23,6 +23,7 @@ function preload() {
   game.load.spritesheet('knight', "<%= asset_path('chara7.png') %>", 32, 32);
   game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
   game.load.image('bullet', "<%= asset_path('donut.gif') %>");
+  game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
 }
 
 var knight;
@@ -35,6 +36,8 @@ var bullet;
 var attackingDirection;
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
+
+	game.add.tileSprite(0, 0, 800, 600, 'background', 8);
 
   knight = game.add.sprite(game.world.centerX, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
@@ -60,6 +63,7 @@ function create() {
       b.visible = false;
       b.checkWorldBounds = true;
       b.events.onOutOfBounds.add(resetBullet, this);
+
   }
 
 
@@ -141,7 +145,7 @@ function fireBullet(direction) {
 
   if (game.time.now > bulletTime){
     bullet = bullets.getFirstExists(false);
-
+    game.add.tween(bullet).to( { angle: 360 }, 2000, Phaser.Easing.Linear.None, true);
     if (bullet){
       if (direction == "attackLeft"){
         bullet.reset(knight.x - 5, knight.y);
@@ -177,7 +181,7 @@ function collisionHandler (bullet, boss) {
   	boss.animations.play('die', 5, false);
   	setTimeout(function(){
     	boss.kill();
-    	knight.animations.play('victorious', 5, false);
+    	knight.animations.play('victorious', 7, false);
 		}, 2000);
   };
 }
