@@ -44,13 +44,14 @@ var attackingDirection;
 
 
 // mobile fullscreen setup
-game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
 // create things in the game environment
 function create() {
+  game.world.setBounds(0, 0, 1200, 600);
+
   // go fullscreen if playing on mobile
-  if (!game.device.desktop){ gofull(); }
+  if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
 
   // enable arcade physics(collision detection, initial sprite positions, etc.)
 	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -64,13 +65,14 @@ function create() {
   };
 
   // create tile background using one frame from a spritesheet
-	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
+	game.add.tileSprite(0, 0, 1200, 600, 'background', 8);
 
   // create instructional text
   createText();
 
   // render knight sprite, set initial position, enable physics on this object
   knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
+  game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
   knight.anchor.setTo(0.5, 0.5);
   knight.scale.setTo(1, 1);
   game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
@@ -177,7 +179,7 @@ function update() {
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
     knight.animations.play('walkLeft', 5, false);
     knight.body.velocity.x = -200;
-    attackingDirection = "attackLeft"
+    attackingDirection = "attackLeft";
   }
   else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
     knight.animations.play('walkRight', 5, false);
@@ -200,14 +202,14 @@ function update() {
   if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
     fireBullet(attackingDirection);
     knight.animations.play(attackingDirection, 8, false);
-  }
+  };
 
 }
 
 // create function to clear bullets from the screen
 function resetBullet (bullet) {
   bullet.kill();
-}
+};
 
 // fires bullets(donuts) in different directions based on attacking direction
 // prevents additional shots based on 'bullet time' (can only fire once per second)
