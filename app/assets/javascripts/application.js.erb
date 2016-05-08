@@ -39,17 +39,17 @@ function create() {
 
 	game.add.tileSprite(0, 0, 800, 600, 'background', 8);
 
-  knight = game.add.sprite(game.world.centerX, game.world.centerY, 'knight');
+  knight = game.add.sprite(game.world.centerX-100, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
   knight.scale.setTo(2, 2);
   game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
 
   boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
   boss.health = 10;
-  boss.anchor.setTo(0.5, 0.5);
+  boss.anchor.setTo(0.5, 0.6);
   boss.scale.setTo(2, 2);
   game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
-
+  boss.body.immovable = true;
   bullets = game.add.group();
   bullets.enableBody = true;
   bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -85,7 +85,9 @@ function create() {
 
   knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
 
-  boss.animations.add('rise', [0, 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
+  knight.animations.add('spin', [1, 10, 28, 19, 1])
+
+  boss.animations.add('rise', [ 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
 
   boss.animations.add('neutral', [4])
 
@@ -93,11 +95,14 @@ function create() {
 
   boss.animations.add('die', [10, 5, 7, 10, 1, 0]);
 
+  knight.animations.play('spin', 6, false)
+
   boss.animations.play('rise', 8, false);
 
 }
 
 function update() {
+  game.physics.arcade.collide(knight, boss)
 	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
 	knight.body.velocity.x = 0;
   knight.body.velocity.y = 0;
