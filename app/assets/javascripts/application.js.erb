@@ -17,9 +17,6 @@
 //= require phaser.min
 
 
-
-
-
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
 function preload() {
@@ -30,7 +27,10 @@ function preload() {
 
 var knight;
 var boss;
+var bullets;
+var bulletTime = 0;
 var bullet;
+
 
 var attackingDirection;
 function create() {
@@ -39,12 +39,28 @@ function create() {
   knight = game.add.sprite(game.world.centerX, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
   knight.scale.setTo(2, 2);
-  game.physics.arcade.enable(knight)
+  game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
 
   boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
+  boss.health = 10;
   boss.anchor.setTo(0.5, 0.5);
   boss.scale.setTo(2, 2);
-  game.physics.arcade.enable(boss)
+  game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
+
+  bullets = game.add.group();
+  bullets.enableBody = true;
+  bullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+  for (var i = 0; i < 20; i++)
+  {
+      var b = bullets.create(0, 0, 'bullet');
+      b.name = 'bullet' + i;
+      b.anchor.setTo(0.5, 0.5);
+      b.exists = false;
+      b.visible = false;
+      b.checkWorldBounds = true;
+      b.events.onOutOfBounds.add(resetBullet, this);
+  }
 
 
   knight.animations.add('walkDown', [3,4,5,4]);
@@ -63,9 +79,16 @@ function create() {
 
   knight.animations.add('attackUp', [33, 34, 35, 30]);
 
-  boss.animations.add('rise', [0, 0, 0, 0, 1, 2, 3, 4]);
+  boss.animations.add('rise', [0, 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
 
-  boss.animations.play('rise', 5, false);
+  boss.animations.add('neutral', [4])
+
+  boss.animations.add('flinch', [5, 7, 10]);
+
+  boss.animations.add('die', [10, 5, 7, 10, 1, 0]);
+
+  boss.animations.play('rise', 8, false);
+
 }
 
 function update() {
@@ -102,37 +125,54 @@ function update() {
 
   if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
   {
-      fireBullet;
-      knight.animations.play(attackingDirection, 5, false);
+      fireBullet(attackingDirection);
+      knight.animations.play(attackingDirection, 8, false);
   }
 
 }
 
 function resetBullet (bullet) {
-
-    bullet.kill();
-
+  bullet.kill();
 }
 
-function fireBullet () {
+function fireBullet(direction) {
 
-  if (game.time.now > bulletTime)
-    {
-        bullet = bullets.getFirstExists(false);
+  if (game.time.now > bulletTime){
+    bullet = bullets.getFirstExists(false);
 
-        if (bullet)
-        {
-            bullet.reset(sprite.x + 6, sprite.y - 8);
-            bullet.body.velocity.y = -300;
-            bulletTime = game.time.now + 250;
-        }
+    if (bullet){
+      if (direction == "attackLeft"){
+        bullet.reset(knight.x - 5, knight.y);
+        bullet.body.velocity.x = -400;
+        bulletTime = game.time.now + 1000;
+      }else if (direction == "attackRight"){
+      	bullet.reset(knight.x + 5, knight.y);
+        bullet.body.velocity.x = 400;
+        bulletTime = game.time.now + 1000;
+      }else if (direction == "attackUp"){
+      	bullet.reset(knight.x, knight.y - 5);
+        bullet.body.velocity.y = -400;
+        bulletTime = game.time.now + 1000;
+      }else if (direction == "attackDown"){
+      	bullet.reset(knight.x, knight.y + 5);
+        bullet.body.velocity.y = 400;
+        bulletTime = game.time.now + 1000;
+      }
     }
+  }
 
 }
 
 function collisionHandler (bullet, boss) {
 
-  //  If the player collides with a chilli it gets eaten :)
-
-
+	bullet.kill();
+	boss.animations.play('flinch', 5, false);
+  boss.health -= 1;
+  if (boss.health <= 0){
+  	boss.animations.play('die', 5, false);
+  	setTimeout(function(){
+    	boss.kill();
+		}, 1300);
+  	knight.animations.play('victorious', false);
+  };
 }
