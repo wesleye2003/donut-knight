@@ -15,11 +15,13 @@
 //= require turbolinks
 //= require_tree .
 //= require phaser.min
+//= require application
 
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
 function preload() {
+  game.load.image('win', "<%= asset_path('clear.png') %>")
   game.load.spritesheet('knight', "<%= asset_path('chara7.png') %>", 32, 32);
   game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
   game.load.spritesheet('boss2', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
@@ -27,6 +29,7 @@ function preload() {
   game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
 }
 
+var text = null;
 var knight;
 var boss;
 var bullets;
@@ -34,6 +37,7 @@ var bulletTime = 0;
 var bullet;
 var rng;
 var rngBoss;
+var won;
 
 var attackingDirection;
 function create() {
@@ -45,6 +49,8 @@ function create() {
     rngBoss = "minotaur";
   };
 	game.add.tileSprite(0, 0, 800, 600, 'background', 8);
+
+  createText();
 
   knight = game.add.sprite(game.world.centerX-100, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
@@ -194,6 +200,8 @@ function collisionHandler (bullet, boss) {
   	knight.body.velocity.y = 0;
   	boss.animations.play('die', 5, false);
   	setTimeout(function(){
+      text.kill();
+      won = game.add.sprite(game.world.centerX-130, 20, 'win');
     	boss.kill();
     	knight.animations.play('victorious', 7, false);
 		}, 2000);
@@ -201,3 +209,23 @@ function collisionHandler (bullet, boss) {
     boss.animations.play('flinch', 5, false);
   }
 }
+
+function createText() {
+
+  text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
+  text.anchor.setTo(0.5);
+
+  text.font = 'Impact';
+  text.fontSize = 40;
+  text.fill = '#7B0000';
+
+  text.align = 'center';
+  text.stroke = '#000000';
+  text.strokeThickness = 2;
+  text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
+
+  text.inputEnabled = true;
+  text.input.enableDrag();
+
+}
+
