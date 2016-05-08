@@ -54,16 +54,14 @@ function create() {
   bullets.enableBody = true;
   bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-  for (var i = 0; i < 20; i++)
-  {
-      var b = bullets.create(0, 0, 'bullet');
-      b.name = 'bullet' + i;
-      b.anchor.setTo(0.5, 0.5);
-      b.exists = false;
-      b.visible = false;
-      b.checkWorldBounds = true;
-      b.events.onOutOfBounds.add(resetBullet, this);
-
+  for (var i = 0; i < 20; i++){
+    var b = bullets.create(0, 0, 'bullet');
+    b.name = 'bullet' + i;
+    b.anchor.setTo(0.5, 0.5);
+    b.exists = false;
+    b.visible = false;
+    b.checkWorldBounds = true;
+    b.events.onOutOfBounds.add(resetBullet, this);
   }
 
 
@@ -107,37 +105,32 @@ function update() {
 	knight.body.velocity.x = 0;
   knight.body.velocity.y = 0;
 
-  if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
-  {
-      knight.animations.play('walkLeft', 5, false);
-      knight.body.velocity.x = -200;
-      attackingDirection = "attackLeft"
+  if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+    knight.animations.play('walkLeft', 5, false);
+    knight.body.velocity.x = -200;
+    attackingDirection = "attackLeft"
   }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
-  {
-      knight.animations.play('walkRight', 5, false);
-      knight.body.velocity.x = 200;
-      attackingDirection = "attackRight";
+  else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+    knight.animations.play('walkRight', 5, false);
+    knight.body.velocity.x = 200;
+    attackingDirection = "attackRight";
   }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.UP))
-  {
-      knight.animations.play('walkUp', 5, false);
-      knight.body.velocity.y = -200;
-      attackingDirection = "attackUp";
+  else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+    knight.animations.play('walkUp', 5, false);
+    knight.body.velocity.y = -200;
+    attackingDirection = "attackUp";
   }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN))
-  {
-      knight.animations.play('walkDown', 5, false);
-      knight.body.velocity.y = 200;
-      attackingDirection = "attackDown";
+  else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+    knight.animations.play('walkDown', 5, false);
+    knight.body.velocity.y = 200;
+    attackingDirection = "attackDown";
   }
 
 
 
-  if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
-  {
-      fireBullet(attackingDirection);
-      knight.animations.play(attackingDirection, 8, false);
+  if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+    fireBullet(attackingDirection);
+    knight.animations.play(attackingDirection, 8, false);
   }
 
 }
@@ -147,7 +140,6 @@ function resetBullet (bullet) {
 }
 
 function fireBullet(direction) {
-
   if (game.time.now > bulletTime){
     bullet = bullets.getFirstExists(false);
     game.add.tween(bullet).to( { angle: 360 }, 2000, Phaser.Easing.Linear.None, true);
@@ -171,11 +163,9 @@ function fireBullet(direction) {
       }
     }
   }
-
 }
 
 function collisionHandler (bullet, boss) {
-
 	bullet.kill();
 	boss.animations.play('flinch', 5, false);
   boss.health -= 1;
@@ -188,5 +178,5 @@ function collisionHandler (bullet, boss) {
     	boss.kill();
     	knight.animations.play('victorious', 7, false);
 		}, 2000);
-  };
+  }
 }
