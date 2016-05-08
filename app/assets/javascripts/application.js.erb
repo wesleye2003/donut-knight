@@ -43,6 +43,10 @@ var won;
 var attackingDirection;
 
 
+// mobile fullscreen setup
+game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+
 // create things in the game environment
 function create() {
   // go fullscreen if playing on mobile
