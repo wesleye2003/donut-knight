@@ -17,12 +17,38 @@
 //= require phaser.min
 //= require application
 
+
+Slime = function (game, x, y, destination) {
+    Phaser.Sprite.call(this, game, x, y, "slime");
+    game.physics.enable(this, Phaser.Physics.ARCADE);
+    this.collideWorldBounds = true;
+    this.enableBody = true;
+    this.animations.add('alive', [0, 1, 2, 1]);
+    this.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+    this.body.collideWorldBounds = true;
+    this.body.velocity.x = 80;
+};
+Slime.prototype = Object.create(Phaser.Sprite.prototype);
+Slime.prototype.constructor = Slime;
+
+Slime.prototype.update = function () {
+  
+
+  game.physics.arcade.collide(this, slimes, function (slime, slimes) {
+    slime.body.velocity.x *= -1.0001;
+  });
+};
+
+
+
+
 // create game environment
 var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
 // preload all assets
 function preload() {
-  game.load.image('win', "<%= asset_path('clear.png') %>")
+  game.load.image('win', "<%= asset_path('clear.png') %>");
+  game.load.spritesheet('slime', "<%= asset_path('chara6.png') %>", 32, 32);
   game.load.spritesheet('knight', "<%= asset_path('chara7.png') %>", 32, 32);
   game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
   game.load.spritesheet('boss2', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
@@ -33,6 +59,7 @@ function preload() {
 // set global variables
 var text = null;
 var knight;
+var slime;
 var boss;
 var bullets;
 var bulletTime = 0;
@@ -48,7 +75,7 @@ game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
 // create things in the game environment
 function create() {
-  game.world.setBounds(0, 0, 1200, 600);
+  game.world.setBounds(0, 0, 600, 600);
 
   // go fullscreen if playing on mobile
   if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
@@ -65,7 +92,7 @@ function create() {
   };
 
   // create tile background using one frame from a spritesheet
-	game.add.tileSprite(0, 0, 1200, 600, 'background', 8);
+	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
 
   // create instructional text
   createText();
@@ -74,7 +101,7 @@ function create() {
   knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
   game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
   knight.anchor.setTo(0.5, 0.5);
-  knight.scale.setTo(1, 1);
+  knight.scale.setTo(1.5, 1.5);
   game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
 
   // render boss sprite based on random number
@@ -87,7 +114,7 @@ function create() {
   // setup boss health, initial position, enable physics on this object
   boss.health = 10;
   boss.anchor.setTo(0.5, 0.6);
-  boss.scale.setTo(1, 1);
+  boss.scale.setTo(1.5, 1.5);
   game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
   boss.body.immovable = true;
 
@@ -101,7 +128,7 @@ function create() {
     var b = bullets.create(0, 0, 'bullet');
     b.name = 'bullet' + i;
     b.anchor.setTo(0.5, 0.5);
-    b.scale.setTo(0.5, 0.5);
+    b.scale.setTo(1, 1);
     b.exists = false;
     b.visible = false;
     b.checkWorldBounds = true;
