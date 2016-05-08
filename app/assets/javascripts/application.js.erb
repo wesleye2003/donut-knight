@@ -50,7 +50,7 @@ game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 // create things in the game environment
 function create() {
   // go fullscreen if playing on mobile
-  if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
+  if (!game.device.desktop){ gofull(); }
 
   // enable arcade physics(collision detection, initial sprite positions, etc.)
 	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -72,7 +72,7 @@ function create() {
   // render knight sprite, set initial position, enable physics on this object
   knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
-  knight.scale.setTo(2, 2);
+  knight.scale.setTo(1, 1);
   game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
 
   // render boss sprite based on random number
@@ -85,7 +85,7 @@ function create() {
   // setup boss health, initial position, enable physics on this object
   boss.health = 10;
   boss.anchor.setTo(0.5, 0.6);
-  boss.scale.setTo(2, 2);
+  boss.scale.setTo(1, 1);
   game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
   boss.body.immovable = true;
 
@@ -99,6 +99,7 @@ function create() {
     var b = bullets.create(0, 0, 'bullet');
     b.name = 'bullet' + i;
     b.anchor.setTo(0.5, 0.5);
+    b.scale.setTo(0.5, 0.5);
     b.exists = false;
     b.visible = false;
     b.checkWorldBounds = true;
