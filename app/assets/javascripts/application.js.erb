@@ -18,7 +18,7 @@
 //= require application
 
 // create game environment
-var game = new Phaser.Game(600, 800, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
 // preload all assets
 function preload() {
@@ -64,7 +64,7 @@ function create() {
   };
 
   // create tile background using one frame from a spritesheet
-	game.add.tileSprite(0, 0, 600, 800, 'background', 8);
+	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
 
   // create instructional text
   createText();
@@ -285,10 +285,4 @@ function createText() {
 }
 
 // fullscreen function
-function gofull() {
-  if (game.scale.isFullScreen){
-    game.scale.stopFullScreen();
-  }else{
-    game.scale.startFullScreen(false);
-  }
-}
+function gofull() { game.scale.startFullScreen(false);}
