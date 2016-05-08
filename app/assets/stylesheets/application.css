@@ -13,3 +13,30 @@
  *= require_tree .
  *= require_self
  */
+
+.hidden {
+ 	display: none;
+}
+
+body {
+ 	margin: 0 auto;
+ 	width: 600px;
+ 	text-align: center;
+ 	perspective: 1000px;
+}
+
+.game-container{
+	transform: rotateX(-30deg);
+	background-color: #DC8686;
+	border-radius: 1em;
+}
+
+h1, h3 {
+	font-family: Impact;
+	
+}
+
+a {
+	color: #7B0000;
+	text-decoration: none;
+}

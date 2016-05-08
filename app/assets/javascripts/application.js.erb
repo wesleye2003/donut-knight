@@ -17,9 +17,10 @@
 //= require phaser.min
 //= require application
 
+// create game environment
+var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
-
+// preload all assets
 function preload() {
   game.load.image('win', "<%= asset_path('clear.png') %>")
   game.load.spritesheet('knight', "<%= asset_path('chara7.png') %>", 32, 32);
@@ -29,6 +30,7 @@ function preload() {
   game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
 }
 
+// set global variables
 var text = null;
 var knight;
 var boss;
@@ -38,39 +40,54 @@ var bullet;
 var rng;
 var rngBoss;
 var won;
-
 var attackingDirection;
+
+
+// create things in the game environment
 function create() {
+  // enable arcade physics(collision detection, initial sprite positions, etc.)
 	game.physics.startSystem(Phaser.Physics.ARCADE);
+
+  // Random number based encounters
   rng = Math.random();
   if (rng >= 0.5){
     rngBoss = "dragon";
   }else if (rng < 0.5){
     rngBoss = "minotaur";
   };
-	game.add.tileSprite(0, 0, 800, 600, 'background', 8);
 
+  // create tile background using one frame from a spritesheet
+	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
+
+  // create instructional text
   createText();
 
-  knight = game.add.sprite(game.world.centerX-100, game.world.centerY, 'knight');
+  // render knight sprite, set initial position, enable physics on this object
+  knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
   knight.anchor.setTo(0.5, 0.5);
   knight.scale.setTo(2, 2);
   game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
 
+  // render boss sprite based on random number
   if (rngBoss == "dragon"){
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
   }else if (rngBoss == "minotaur"){
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss2');
   };
+
+  // setup boss health, initial position, enable physics on this object
   boss.health = 10;
   boss.anchor.setTo(0.5, 0.6);
   boss.scale.setTo(2, 2);
   game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
   boss.body.immovable = true;
+
+  // setup bullets group
   bullets = game.add.group();
   bullets.enableBody = true;
   bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
+  // 
   for (var i = 0; i < 20; i++){
     var b = bullets.create(0, 0, 'bullet');
     b.name = 'bullet' + i;
@@ -81,7 +98,7 @@ function create() {
     b.events.onOutOfBounds.add(resetBullet, this);
   }
 
-
+  // set up custom animations using .gif or .png spritesheet
   knight.animations.add('walkDown', [3,4,5,4]);
 
   knight.animations.add('attackDown', [6, 7, 8, 3]);
@@ -101,6 +118,8 @@ function create() {
   knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
 
   knight.animations.add('spin', [1, 10, 28, 19, 1])
+
+  // set up custom boss animations for each sprite
   if (rngBoss == "dragon"){
     boss.animations.add('rise', [ 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
 
@@ -119,18 +138,27 @@ function create() {
     boss.animations.add('die', [7, 6, 8, 9, 8, 9, 8, 7, 1, 0, 0]);
   }
 
+  // opening animations
   knight.animations.play('spin', 6, false)
 
   boss.animations.play('rise', 8, false);
 
 }
 
+
+// update game environment
 function update() {
+  // enable collision between knight and boss
   game.physics.arcade.collide(knight, boss)
+
+  // enable overlapping physics between bullets and boss
 	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
+
+  // stop movement when keys are not pressed
 	knight.body.velocity.x = 0;
   knight.body.velocity.y = 0;
 
+  // bind knight animations, attack direction, and movement to up, down, left, and right arrows
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
     knight.animations.play('walkLeft', 5, false);
     knight.body.velocity.x = -200;
@@ -153,7 +181,7 @@ function update() {
   }
 
 
-
+  // uses set knight attacking direction to SHOOT FUCKING DONUTS FROM HIS SWORD!!!!!
   if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
     fireBullet(attackingDirection);
     knight.animations.play(attackingDirection, 8, false);
@@ -161,10 +189,15 @@ function update() {
 
 }
 
+// create function to clear bullets from the screen
 function resetBullet (bullet) {
   bullet.kill();
 }
 
+// fires bullets(donuts) in different directions based on attacking direction
+// prevents additional shots based on 'bullet time' (can only fire once per second)
+// bullet time is there because idk how to make all bullets hit 
+// the boss when more than one bullet is on the screen lol PLS FIX ASAP
 function fireBullet(direction) {
   if (game.time.now > bulletTime){
     bullet = bullets.getFirstExists(false);
@@ -191,9 +224,17 @@ function fireBullet(direction) {
   }
 }
 
+
+// handles collision between bullets and boss
 function collisionHandler (bullet, boss) {
+
+  // bullets disappear when they hit the boss and do health damage
 	bullet.kill();
   boss.health -= 1;
+
+  // if boss is dead, stop player movement, play boss death animation,
+  // display victory text, allow knight sprite to dab on them folks
+  // otherwise, make boss flinch and continue game
   if (boss.health <= 0){
   	game.input.keyboard.destroy();
   	knight.body.velocity.x = 0;
@@ -210,8 +251,9 @@ function collisionHandler (bullet, boss) {
   }
 }
 
-function createText() {
 
+// create and style in-game text
+function createText() {
   text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
   text.anchor.setTo(0.5);
 
@@ -226,6 +268,5 @@ function createText() {
 
   text.inputEnabled = true;
   text.input.enableDrag();
-
 }
 
