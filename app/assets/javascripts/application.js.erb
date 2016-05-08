@@ -18,7 +18,7 @@
 //= require application
 
 // create game environment
-var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(600, 800, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
 // preload all assets
 function preload() {
@@ -45,6 +45,9 @@ var attackingDirection;
 
 // create things in the game environment
 function create() {
+  // go fullscreen if playing on mobile
+  if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
+
   // enable arcade physics(collision detection, initial sprite positions, etc.)
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -57,7 +60,7 @@ function create() {
   };
 
   // create tile background using one frame from a spritesheet
-	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
+	game.add.tileSprite(0, 0, 600, 800, 'background', 8);
 
   // create instructional text
   createText();
@@ -158,6 +161,13 @@ function update() {
 	knight.body.velocity.x = 0;
   knight.body.velocity.y = 0;
 
+  // prevent defaults (like jQuery) 
+  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
+  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
+  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
+  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+
   // bind knight animations, attack direction, and movement to up, down, left, and right arrows
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
     knight.animations.play('walkLeft', 5, false);
@@ -181,7 +191,7 @@ function update() {
   }
 
 
-  // uses set knight attacking direction to SHOOT FUCKING DONUTS FROM HIS SWORD!!!!!
+  // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
   if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
     fireBullet(attackingDirection);
     knight.animations.play(attackingDirection, 8, false);
@@ -197,7 +207,7 @@ function resetBullet (bullet) {
 // fires bullets(donuts) in different directions based on attacking direction
 // prevents additional shots based on 'bullet time' (can only fire once per second)
 // bullet time is there because idk how to make all bullets hit 
-// the boss when more than one bullet is on the screen lol PLS FIX ASAP
+// the boss when more than one bullet is on the screen lol PLS FIX
 function fireBullet(direction) {
   if (game.time.now > bulletTime){
     bullet = bullets.getFirstExists(false);

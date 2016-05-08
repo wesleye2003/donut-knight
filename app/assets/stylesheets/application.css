@@ -26,6 +26,10 @@ body {
 }
 
 .game-container{
+	margin-top: 1em;
+	margin-bottom: 1em;
+	border-width:5px;	
+  border-style:groove;
 	transform: rotateX(-30deg);
 	background-color: #DC8686;
 	border-radius: 1em;
