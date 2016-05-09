@@ -120,7 +120,7 @@ function create() {
     slime1.animations.play('alive', 7, true);
     slime1.scale.setTo(1.1, 1.1);
     slimes.push(slime1);
-  }, 1000);  
+  }, 6000);  
 
   setTimeout(function(){
     slime2 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
@@ -137,7 +137,7 @@ function create() {
     slime2.animations.play('alive', 5, true);
     slime2.scale.setTo(1.2, 1.2);
     slimes.push(slime2);
-  }, 2000);
+  }, 5000);
 
   setTimeout(function(){
     slime3 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
@@ -154,7 +154,7 @@ function create() {
     slime3.animations.play('alive', 4, true);
     slime3.scale.setTo(1.3, 1.3);
     slimes.push(slime3);
-  }, 3000);
+  }, 4000);
 
   setTimeout(function(){
     slime4 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
@@ -171,7 +171,7 @@ function create() {
     slime4.animations.play('alive', 8, true);
     slime4.scale.setTo(1.4, 1.4);
     slimes.push(slime4);
-  }, 4000);
+  }, 3000);
 
   setTimeout(function(){
     slime5 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
@@ -188,7 +188,7 @@ function create() {
     slime5.animations.play('alive', 5, true);
     slime5.scale.setTo(1.5, 1.5);
     slimes.push(slime5);
-  }, 5000);
+  }, 2000);
 
   setTimeout(function(){
     slime6 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
@@ -205,7 +205,7 @@ function create() {
     slime6.animations.play('alive', 6, true);
     slime6.scale.setTo(1.5, 1.5);
     slimes.push(slime6);
-  }, 6000);
+  }, 1000);
 
   // setup boss health, initial position, enable physics on this object
   boss.health = 10;
@@ -383,15 +383,16 @@ function collisionHandler (bullet, enemy) {
     enemiesAlive -= 1;
     enemy.body.velocity.x = 0;
     enemy.body.velocity.y = 0;
-    slime6.body.bounce.set(0);
     enemy.enableBody = false;
     enemy.animations.play('die', 5, false);
     setTimeout(function(){
       enemy.kill();
     }, 2000);
+  }else if (enemy.health <= 0){
+    enemy.animations.play('die', 5, false);
   }else{
     enemy.animations.play('flinch', 5, false);
-  };
+  }
   
   // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
   // delete instructional text, display winning text
