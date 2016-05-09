@@ -101,93 +101,111 @@ function create() {
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss2');
   };
 
-  // render slime sprites and attributes
-  slime1 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime1, Phaser.Physics.ARCADE);
-  slime1.collideWorldBounds = true;
-  slime1.body.bounce.set(1);
-  slime1.health = 1;
-  slime1.enableBody = true;
-  slime1.animations.add('alive', [0, 1, 2, 1]);
-  slime1.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime1.body.collideWorldBounds = true;
-  slime1.body.velocity.x = Math.random()*80;
-  slime1.body.velocity.y = Math.random()*-80;
-  slime1.animations.play('alive', 7, true);
-  slime1.scale.setTo(1.1, 1.1);
-
-  slime2 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime2, Phaser.Physics.ARCADE);
-  slime2.collideWorldBounds = true;
-  slime2.body.bounce.set(1);
-  slime2.health = 2;
-  slime2.enableBody = true;
-  slime2.animations.add('alive', [0, 1, 2, 1]);
-  slime2.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime2.body.collideWorldBounds = true;
-  slime2.body.velocity.x = Math.random()*-80;
-  slime2.body.velocity.y = Math.random()*80;
-  slime2.animations.play('alive', 5, true);
-  slime2.scale.setTo(1.2, 1.2);
-
-  slime3 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime3, Phaser.Physics.ARCADE);
-  slime3.collideWorldBounds = true;
-  slime3.body.bounce.set(1);
-  slime3.health = 3;
-  slime3.enableBody = true;
-  slime3.animations.add('alive', [0, 1, 2, 1]);
-  slime3.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime3.body.collideWorldBounds = true;
-  slime3.body.velocity.x = Math.random()*-80;
-  slime3.body.velocity.y = Math.random()*-80;
-  slime3.animations.play('alive', 4, true);
-  slime3.scale.setTo(1.3, 1.3);
-
-  slime4 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime4, Phaser.Physics.ARCADE);
-  slime4.collideWorldBounds = true;
-  slime4.body.bounce.set(1);
-  slime4.health = 4;
-  slime4.enableBody = true;
-  slime4.animations.add('alive', [0, 1, 2, 1]);
-  slime4.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime4.body.collideWorldBounds = true;
-  slime4.body.velocity.x = Math.random()*-80;
-  slime4.body.velocity.y = Math.random()*80;
-  slime4.animations.play('alive', 8, true);
-  slime4.scale.setTo(1.4, 1.4);
-
-  slime5 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime5, Phaser.Physics.ARCADE);
-  slime5.collideWorldBounds = true;
-  slime5.body.bounce.set(1);
-  slime5.health = 5;
-  slime5.enableBody = true;
-  slime5.animations.add('alive', [0, 1, 2, 1]);
-  slime5.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime5.body.collideWorldBounds = true;
-  slime5.body.velocity.x = Math.random()*80;
-  slime5.body.velocity.y = Math.random()*-80;
-  slime5.animations.play('alive', 5, true);
-  slime5.scale.setTo(1.5, 1.5);
-
-  slime6 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-  game.physics.enable(slime6, Phaser.Physics.ARCADE);
-  slime6.collideWorldBounds = true;
-  slime6.body.bounce.set(1);
-  slime6.health = 6;
-  slime6.enableBody = true;
-  slime6.animations.add('alive', [0, 1, 2, 1]);
-  slime6.animations.add('die', [0, 1, 0, 1, 2, 2]);
-  slime6.body.collideWorldBounds = true;
-  slime6.body.velocity.x = Math.random()*80;
-  slime6.body.velocity.y = Math.random()*80;
-  slime6.animations.play('alive', 6, true);
-  slime6.scale.setTo(1.5, 1.5);
-
   // setup slimes group
-  slimes = [slime1, slime2, slime3, slime4, slime5, slime6]
+  slimes = []
+
+  // render slime sprites and attributes
+  setTimeout(function(){
+    slime1 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime1, Phaser.Physics.ARCADE);
+    slime1.collideWorldBounds = true;
+    slime1.body.bounce.set(1);
+    slime1.health = 1;
+    slime1.enableBody = true;
+    slime1.animations.add('alive', [0, 1, 2, 1]);
+    slime1.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime1.body.collideWorldBounds = true;
+    slime1.body.velocity.x = Math.random()*80;
+    slime1.body.velocity.y = Math.random()*-80;
+    slime1.animations.play('alive', 7, true);
+    slime1.scale.setTo(1.1, 1.1);
+    slimes.push(slime1);
+  }, 1000);  
+
+  setTimeout(function(){
+    slime2 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime2, Phaser.Physics.ARCADE);
+    slime2.collideWorldBounds = true;
+    slime2.body.bounce.set(1);
+    slime2.health = 2;
+    slime2.enableBody = true;
+    slime2.animations.add('alive', [0, 1, 2, 1]);
+    slime2.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime2.body.collideWorldBounds = true;
+    slime2.body.velocity.x = Math.random()*-80;
+    slime2.body.velocity.y = Math.random()*80;
+    slime2.animations.play('alive', 5, true);
+    slime2.scale.setTo(1.2, 1.2);
+    slimes.push(slime2);
+  }, 2000);
+
+  setTimeout(function(){
+    slime3 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime3, Phaser.Physics.ARCADE);
+    slime3.collideWorldBounds = true;
+    slime3.body.bounce.set(1);
+    slime3.health = 3;
+    slime3.enableBody = true;
+    slime3.animations.add('alive', [0, 1, 2, 1]);
+    slime3.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime3.body.collideWorldBounds = true;
+    slime3.body.velocity.x = Math.random()*-80;
+    slime3.body.velocity.y = Math.random()*-80;
+    slime3.animations.play('alive', 4, true);
+    slime3.scale.setTo(1.3, 1.3);
+    slimes.push(slime3);
+  }, 3000);
+
+  setTimeout(function(){
+    slime4 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime4, Phaser.Physics.ARCADE);
+    slime4.collideWorldBounds = true;
+    slime4.body.bounce.set(1);
+    slime4.health = 4;
+    slime4.enableBody = true;
+    slime4.animations.add('alive', [0, 1, 2, 1]);
+    slime4.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime4.body.collideWorldBounds = true;
+    slime4.body.velocity.x = Math.random()*-80;
+    slime4.body.velocity.y = Math.random()*80;
+    slime4.animations.play('alive', 8, true);
+    slime4.scale.setTo(1.4, 1.4);
+    slimes.push(slime4);
+  }, 4000);
+
+  setTimeout(function(){
+    slime5 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime5, Phaser.Physics.ARCADE);
+    slime5.collideWorldBounds = true;
+    slime5.body.bounce.set(1);
+    slime5.health = 5;
+    slime5.enableBody = true;
+    slime5.animations.add('alive', [0, 1, 2, 1]);
+    slime5.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime5.body.collideWorldBounds = true;
+    slime5.body.velocity.x = Math.random()*80;
+    slime5.body.velocity.y = Math.random()*-80;
+    slime5.animations.play('alive', 5, true);
+    slime5.scale.setTo(1.5, 1.5);
+    slimes.push(slime5);
+  }, 5000);
+
+  setTimeout(function(){
+    slime6 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+    game.physics.enable(slime6, Phaser.Physics.ARCADE);
+    slime6.collideWorldBounds = true;
+    slime6.body.bounce.set(1);
+    slime6.health = 6;
+    slime6.enableBody = true;
+    slime6.animations.add('alive', [0, 1, 2, 1]);
+    slime6.animations.add('die', [0, 1, 0, 1, 2, 2]);
+    slime6.body.collideWorldBounds = true;
+    slime6.body.velocity.x = Math.random()*80;
+    slime6.body.velocity.y = Math.random()*80;
+    slime6.animations.play('alive', 6, true);
+    slime6.scale.setTo(1.5, 1.5);
+    slimes.push(slime6);
+  }, 6000);
 
   // setup boss health, initial position, enable physics on this object
   boss.health = 10;
