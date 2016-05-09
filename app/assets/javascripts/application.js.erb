@@ -39,8 +39,6 @@ var won;
 var attackingDirection;
 var enemiesAlive = 7;
 
-
-
 // create game environment
 var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
@@ -55,12 +53,13 @@ function preload() {
   game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
 }
 
-
 // mobile fullscreen setup
 // game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
 // create things in the game environment
 function create() {
+
+  // set environment bounds
   game.world.setBounds(0, 0, 600, 600);
 
   // go fullscreen if playing on mobile
@@ -102,7 +101,7 @@ function create() {
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss2');
   };
 
-  // render slime sprites
+  // render slime sprites and attributes
   slime1 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
   game.physics.enable(slime1, Phaser.Physics.ARCADE);
   slime1.collideWorldBounds = true;
@@ -187,6 +186,7 @@ function create() {
   slime6.animations.play('alive', 6, true);
   slime6.scale.setTo(1.5, 1.5);
 
+  // setup slimes group
   slimes = [slime1, slime2, slime3, slime4, slime5, slime6]
 
   // setup boss health, initial position, enable physics on this object
@@ -201,7 +201,7 @@ function create() {
   bullets.enableBody = true;
   bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-  // 
+  // individual bullet setup and physics
   for (var i = 0; i < 20; i++){
     var b = bullets.create(0, 0, 'bullet');
     b.name = 'bullet' + i;
@@ -254,28 +254,25 @@ function create() {
   }
 
   // opening animations
-  knight.animations.play('spin', 6, false)
-
-  boss.animations.play('rise', 8, false);
-
-  
+  knight.animations.play('spin', 6, false);
+  boss.animations.play('rise', 8, false); 
 }
 
 
 // update game environment
 function update() {
   // enable collision between knight and boss
-  game.physics.arcade.collide(knight, boss)
-
-  game.physics.arcade.collide(knight, slimes)
-
-  game.physics.arcade.collide(slimes, slimes)
-
-  game.physics.arcade.collide(slimes, boss)
+  game.physics.arcade.collide(knight, boss);
+  // enable collision between knight and slimes
+  game.physics.arcade.collide(knight, slimes);
+  // enable collision between slimes and other slimes
+  game.physics.arcade.collide(slimes, slimes);
+  // enable collision between slimes and the boss
+  game.physics.arcade.collide(slimes, boss);
 
   // enable overlapping physics between bullets and boss
 	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
-
+  // add slimes and bullets to overlapping physics (physics that do the same thing to diff. objects)
   game.physics.arcade.overlap(bullet, slimes, collisionHandler, null, this);
 
   // stop movement when keys are not pressed
@@ -356,16 +353,16 @@ function fireBullet(direction) {
 }
 
 
-// handles collision between bullets and boss
+// handles collision between bullets and enemy
 function collisionHandler (bullet, enemy) {
 
-  // bullets disappear when they hit the boss and do health damage
+  // bullets disappear when they hit the enemy and do health damage
 	bullet.kill();
   enemy.health -= 1;
 
-
+  // if enemy is dead, play death animation and decrement enemy count
   if (enemy.health == 0){
-    enemiesAlive -= 1
+    enemiesAlive -= 1;
     enemy.body.velocity.x = 0;
     enemy.body.velocity.y = 0;
     slime6.body.bounce.set(0);
@@ -374,10 +371,12 @@ function collisionHandler (bullet, enemy) {
     setTimeout(function(){
       enemy.kill();
     }, 2000);
+  }else{
+    enemy.animations.play('flinch', 5, false);
   };
-  // if boss is dead, stop player movement, play boss death animation,
-  // display victory text, allow knight sprite to dab on them folks
-  // otherwise, make boss flinch and continue game
+  
+  // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
+  // delete instructional text, display winning text
   if (enemiesAlive <= 0){
   	game.input.keyboard.destroy();
   	knight.body.velocity.x = 0;
@@ -387,10 +386,8 @@ function collisionHandler (bullet, enemy) {
       won = game.add.sprite(game.world.centerX-130, 20, 'win');
     	knight.animations.play('victorious', 7, false);
 		}, 2000);
-  }else{
-    enemy.animations.play('flinch', 5, false);
-  }
-}
+  };
+};
 
 // create and style in-game text
 function createText() {
@@ -410,5 +407,5 @@ function createText() {
   text.input.enableDrag();
 }
 
-// fullscreen function
+// fullscreen function (for mobile)
 function gofull() { game.scale.startFullScreen(false);}
