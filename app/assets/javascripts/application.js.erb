@@ -107,10 +107,10 @@ function create() {
   game.physics.enable(slime1, Phaser.Physics.ARCADE);
   slime1.collideWorldBounds = true;
   slime1.body.bounce.set(1);
-  slime1.health = 3;
+  slime1.health = 1;
   slime1.enableBody = true;
   slime1.animations.add('alive', [0, 1, 2, 1]);
-  slime1.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime1.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime1.body.collideWorldBounds = true;
   slime1.body.velocity.x = Math.random()*80;
   slime1.body.velocity.y = Math.random()*-80;
@@ -121,10 +121,10 @@ function create() {
   game.physics.enable(slime2, Phaser.Physics.ARCADE);
   slime2.collideWorldBounds = true;
   slime2.body.bounce.set(1);
-  slime2.health = 3;
+  slime2.health = 2;
   slime2.enableBody = true;
   slime2.animations.add('alive', [0, 1, 2, 1]);
-  slime2.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime2.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime2.body.collideWorldBounds = true;
   slime2.body.velocity.x = Math.random()*-80;
   slime2.body.velocity.y = Math.random()*80;
@@ -138,7 +138,7 @@ function create() {
   slime3.health = 3;
   slime3.enableBody = true;
   slime3.animations.add('alive', [0, 1, 2, 1]);
-  slime3.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime3.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime3.body.collideWorldBounds = true;
   slime3.body.velocity.x = Math.random()*-80;
   slime3.body.velocity.y = Math.random()*-80;
@@ -149,10 +149,10 @@ function create() {
   game.physics.enable(slime4, Phaser.Physics.ARCADE);
   slime4.collideWorldBounds = true;
   slime4.body.bounce.set(1);
-  slime4.health = 3;
+  slime4.health = 4;
   slime4.enableBody = true;
   slime4.animations.add('alive', [0, 1, 2, 1]);
-  slime4.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime4.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime4.body.collideWorldBounds = true;
   slime4.body.velocity.x = Math.random()*-80;
   slime4.body.velocity.y = Math.random()*80;
@@ -163,10 +163,10 @@ function create() {
   game.physics.enable(slime5, Phaser.Physics.ARCADE);
   slime5.collideWorldBounds = true;
   slime5.body.bounce.set(1);
-  slime5.health = 3;
+  slime5.health = 5;
   slime5.enableBody = true;
   slime5.animations.add('alive', [0, 1, 2, 1]);
-  slime5.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime5.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime5.body.collideWorldBounds = true;
   slime5.body.velocity.x = Math.random()*80;
   slime5.body.velocity.y = Math.random()*-80;
@@ -177,10 +177,10 @@ function create() {
   game.physics.enable(slime6, Phaser.Physics.ARCADE);
   slime6.collideWorldBounds = true;
   slime6.body.bounce.set(1);
-  slime6.health = 3;
+  slime6.health = 6;
   slime6.enableBody = true;
   slime6.animations.add('alive', [0, 1, 2, 1]);
-  slime6.animations.add('dead', [0, 1, 0, 1, 2, 2]);
+  slime6.animations.add('die', [0, 1, 0, 1, 2, 2]);
   slime6.body.collideWorldBounds = true;
   slime6.body.velocity.x = Math.random()*80;
   slime6.body.velocity.y = Math.random()*80;
@@ -267,8 +267,16 @@ function update() {
   // enable collision between knight and boss
   game.physics.arcade.collide(knight, boss)
 
+  game.physics.arcade.collide(knight, slimes)
+
+  game.physics.arcade.collide(slimes, slimes)
+
+  game.physics.arcade.collide(slimes, boss)
+
   // enable overlapping physics between bullets and boss
 	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
+
+  game.physics.arcade.overlap(bullet, slimes, collisionHandler, null, this);
 
   // stop movement when keys are not pressed
 	knight.body.velocity.x = 0;
@@ -349,28 +357,38 @@ function fireBullet(direction) {
 
 
 // handles collision between bullets and boss
-function collisionHandler (bullet, boss) {
+function collisionHandler (bullet, enemy) {
 
   // bullets disappear when they hit the boss and do health damage
 	bullet.kill();
-  boss.health -= 1;
+  enemy.health -= 1;
 
+
+  if (enemy.health == 0){
+    enemiesAlive -= 1
+    enemy.body.velocity.x = 0;
+    enemy.body.velocity.y = 0;
+    slime6.body.bounce.set(0);
+    enemy.enableBody = false;
+    enemy.animations.play('die', 5, false);
+    setTimeout(function(){
+      enemy.kill();
+    }, 2000);
+  };
   // if boss is dead, stop player movement, play boss death animation,
   // display victory text, allow knight sprite to dab on them folks
   // otherwise, make boss flinch and continue game
-  if (boss.health <= 0){
+  if (enemiesAlive <= 0){
   	game.input.keyboard.destroy();
   	knight.body.velocity.x = 0;
   	knight.body.velocity.y = 0;
-  	boss.animations.play('die', 5, false);
   	setTimeout(function(){
       text.kill();
       won = game.add.sprite(game.world.centerX-130, 20, 'win');
-    	boss.kill();
     	knight.animations.play('victorious', 7, false);
 		}, 2000);
   }else{
-    boss.animations.play('flinch', 5, false);
+    enemy.animations.play('flinch', 5, false);
   }
 }
 
