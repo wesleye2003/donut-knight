@@ -1,6 +1,7 @@
 # donut-knight
 
 ##Milestones
+* REFACTOR SLIME, KNIGHT, AND BOSS CREATION AS OBJECT ORIENTED JS CONSTRUCTOR FUNCTIONS!!!
 * scale hitboxes
 * life bars/damage indication
 * player health
