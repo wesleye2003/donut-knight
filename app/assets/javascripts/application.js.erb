@@ -18,413 +18,421 @@
 //= require application
 
 
+var newGame = function() {
+  // set global variables
+  var text = null;
+  var knight;
+  var slime1;
+  var slime2;
+  var slime3;
+  var slime4;
+  var slime5;
+  var slime6;
+  var slimes;
+  var boss;
+  var bullets;
+  var bulletTime = 0;
+  var bullet;
+  var rng;
+  var rngBoss;
+  var won;
+  var attackingDirection;
+  var enemiesAlive = 7;
 
-// set global variables
-var text = null;
-var knight;
-var slime1;
-var slime2;
-var slime3;
-var slime4;
-var slime5;
-var slime6;
-var slimes;
-var boss;
-var bullets;
-var bulletTime = 0;
-var bullet;
-var rng;
-var rngBoss;
-var won;
-var attackingDirection;
-var enemiesAlive = 7;
+  // create game environment
+  var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
-// create game environment
-var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
+  // preload all assets
+  function preload() {
+    game.load.image('win', "<%= asset_path('clear.png') %>");
+    game.load.spritesheet('slime', "<%= asset_path('chara6.png') %>", 32, 32);
+    game.load.spritesheet('knight', "<%= asset_path('chara5.png') %>", 32, 32);
+    game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
+    game.load.spritesheet('boss2', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
+    game.load.image('bullet', "<%= asset_path('donut.gif') %>");
+    game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
+  }
 
-// preload all assets
-function preload() {
-  game.load.image('win', "<%= asset_path('clear.png') %>");
-  game.load.spritesheet('slime', "<%= asset_path('chara6.png') %>", 32, 32);
-  game.load.spritesheet('knight', "<%= asset_path('chara7.png') %>", 32, 32);
-  game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
-  game.load.spritesheet('boss2', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
-  game.load.image('bullet', "<%= asset_path('donut.gif') %>");
-  game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
-}
+  // mobile fullscreen setup
+  // game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
-// mobile fullscreen setup
-// game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+  // create things in the game environment
+  function create() {
 
-// create things in the game environment
-function create() {
+    // set environment bounds
+    game.world.setBounds(0, 0, 600, 600);
 
-  // set environment bounds
-  game.world.setBounds(0, 0, 600, 600);
+    // go fullscreen if playing on mobile
+    if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
 
-  // go fullscreen if playing on mobile
-  if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
+    // enable arcade physics(collision detection, initial sprite positions, etc.)
+  	game.physics.startSystem(Phaser.Physics.ARCADE);
 
-  // enable arcade physics(collision detection, initial sprite positions, etc.)
-	game.physics.startSystem(Phaser.Physics.ARCADE);
+    // Random number based encounters
+    rng = Math.random();
+    if (rng >= 0.5){
+      rngBoss = "dragon";
+    }else if (rng < 0.5){
+      rngBoss = "minotaur";
+    };
 
-  // Random number based encounters
-  rng = Math.random();
-  if (rng >= 0.5){
-    rngBoss = "dragon";
-  }else if (rng < 0.5){
-    rngBoss = "minotaur";
+    // create tile background using one frame from a spritesheet
+  	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
+
+    // create instructional text
+    createText();
+
+    // render knight sprite, set initial position, enable physics on this object
+    knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
+    game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
+    game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
+    knight.enableBody = true;
+    knight.collideWorldBounds = true;
+    knight.body.collideWorldBounds = true;
+    knight.anchor.setTo(0.5, 0.5);
+    knight.scale.setTo(1.5, 1.5);
+
+
+
+    // render boss sprite based on random number
+    if (rngBoss == "dragon"){
+      boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
+    }else if (rngBoss == "minotaur"){
+      boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss2');
+    };
+
+    // setup slimes group
+    slimes = []
+
+    // render slime sprites and attributes
+    setTimeout(function(){
+      slime1 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime1, Phaser.Physics.ARCADE);
+      slime1.collideWorldBounds = true;
+      slime1.body.bounce.set(1);
+      slime1.health = 1;
+      slime1.enableBody = true;
+      slime1.animations.add('alive', [0, 1, 2, 1]);
+      slime1.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime1.body.collideWorldBounds = true;
+      slime1.body.velocity.x = Math.random()*80;
+      slime1.body.velocity.y = Math.random()*-80;
+      slime1.animations.play('alive', 7, true);
+      slime1.scale.setTo(1.1, 1.1);
+      slimes.push(slime1);
+    }, 6000);
+
+    setTimeout(function(){
+      slime2 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime2, Phaser.Physics.ARCADE);
+      slime2.collideWorldBounds = true;
+      slime2.body.bounce.set(1);
+      slime2.health = 1;
+      slime2.enableBody = true;
+      slime2.animations.add('alive', [0, 1, 2, 1]);
+      slime2.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime2.body.collideWorldBounds = true;
+      slime2.body.velocity.x = Math.random()*-80;
+      slime2.body.velocity.y = Math.random()*80;
+      slime2.animations.play('alive', 5, true);
+      slime2.scale.setTo(1.2, 1.2);
+      slimes.push(slime2);
+    }, 5000);
+
+    setTimeout(function(){
+      slime3 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime3, Phaser.Physics.ARCADE);
+      slime3.collideWorldBounds = true;
+      slime3.body.bounce.set(1);
+      slime3.health = 1;
+      slime3.enableBody = true;
+      slime3.animations.add('alive', [0, 1, 2, 1]);
+      slime3.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime3.body.collideWorldBounds = true;
+      slime3.body.velocity.x = Math.random()*-80;
+      slime3.body.velocity.y = Math.random()*-80;
+      slime3.animations.play('alive', 4, true);
+      slime3.scale.setTo(1.3, 1.3);
+      slimes.push(slime3);
+    }, 4000);
+
+    setTimeout(function(){
+      slime4 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime4, Phaser.Physics.ARCADE);
+      slime4.collideWorldBounds = true;
+      slime4.body.bounce.set(1);
+      slime4.health = 1;
+      slime4.enableBody = true;
+      slime4.animations.add('alive', [0, 1, 2, 1]);
+      slime4.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime4.body.collideWorldBounds = true;
+      slime4.body.velocity.x = Math.random()*-80;
+      slime4.body.velocity.y = Math.random()*80;
+      slime4.animations.play('alive', 8, true);
+      slime4.scale.setTo(1.4, 1.4);
+      slimes.push(slime4);
+    }, 3000);
+
+    setTimeout(function(){
+      slime5 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime5, Phaser.Physics.ARCADE);
+      slime5.collideWorldBounds = true;
+      slime5.body.bounce.set(1);
+      slime5.health = 1;
+      slime5.enableBody = true;
+      slime5.animations.add('alive', [0, 1, 2, 1]);
+      slime5.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime5.body.collideWorldBounds = true;
+      slime5.body.velocity.x = Math.random()*80;
+      slime5.body.velocity.y = Math.random()*-80;
+      slime5.animations.play('alive', 5, true);
+      slime5.scale.setTo(1.5, 1.5);
+      slimes.push(slime5);
+    }, 2000);
+
+    setTimeout(function(){
+      slime6 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
+      game.physics.enable(slime6, Phaser.Physics.ARCADE);
+      slime6.collideWorldBounds = true;
+      slime6.body.bounce.set(1);
+      slime6.health = 1;
+      slime6.enableBody = true;
+      slime6.animations.add('alive', [0, 1, 2, 1]);
+      slime6.animations.add('die', [0, 1, 0, 1, 2, 2]);
+      slime6.body.collideWorldBounds = true;
+      slime6.body.velocity.x = Math.random()*80;
+      slime6.body.velocity.y = Math.random()*80;
+      slime6.animations.play('alive', 6, true);
+      slime6.scale.setTo(1.5, 1.5);
+      slimes.push(slime6);
+    }, 1000);
+
+    // setup boss health, initial position, enable physics on this object
+    boss.health = 5;
+    boss.anchor.setTo(0.5, 0.6);
+    boss.scale.setTo(1.5, 1.5);
+    game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
+    boss.body.immovable = true;
+
+    // setup bullets group
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    // individual bullet setup and physics
+    for (var i = 0; i < 20; i++){
+      var b = bullets.create(0, 0, 'bullet');
+      b.name = 'bullet' + i;
+      b.anchor.setTo(0.5, 0.5);
+      b.scale.setTo(1, 1);
+      b.exists = false;
+      b.visible = false;
+      b.checkWorldBounds = true;
+      b.events.onOutOfBounds.add(resetBullet, this);
+    }
+
+    // set up custom animations using .gif or .png spritesheet
+    knight.animations.add('walkDown', [3,4,5,4]);
+
+    knight.animations.add('attackDown', [6, 7, 8, 3]);
+
+    knight.animations.add('walkLeft', [12,13,14,13]);
+
+    knight.animations.add('attackLeft', [15, 16, 17, 12]);
+
+    knight.animations.add('walkRight', [21,22,23,22]);
+
+    knight.animations.add('attackRight', [24, 25, 26, 21]);
+
+    knight.animations.add('walkUp', [30,31,32,31]);
+
+    knight.animations.add('attackUp', [33, 34, 35, 30]);
+
+    knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
+
+    knight.animations.add('spin', [1, 10, 28, 19, 1])
+
+    // set up custom boss animations for each sprite
+    if (rngBoss == "dragon"){
+      boss.animations.add('rise', [ 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
+
+      boss.animations.add('neutral', [4])
+
+      boss.animations.add('flinch', [5, 7, 10]);
+
+      boss.animations.add('die', [5, 7, 5, 4, 9, 8, 9, 10, 1, 0]);
+    }else if(rngBoss == "minotaur"){
+      boss.animations.add('rise', [ 0, 0, 1, 1, 3, 3, 3, 3, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 3, 2, 5]);
+
+      boss.animations.add('neutral', [4])
+
+      boss.animations.add('flinch', [7, 3, 8, 9, 10]);
+
+      boss.animations.add('die', [7, 6, 8, 9, 8, 9, 8, 7, 1, 0, 0]);
+    }
+
+    // opening animations
+    knight.animations.play('spin', 6, false);
+    boss.animations.play('rise', 8, false);
+  }
+
+
+  // update game environment
+  function update() {
+    // enable collision between knight and boss
+    game.physics.arcade.collide(knight, boss);
+    // enable collision between knight and slimes
+    game.physics.arcade.collide(knight, slimes);
+    // enable collision between slimes and other slimes
+    game.physics.arcade.collide(slimes, slimes);
+    // enable collision between slimes and the boss
+    game.physics.arcade.collide(slimes, boss);
+
+    // enable overlapping physics between bullets and boss
+  	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
+    // add slimes and bullets to overlapping physics (physics that do the same thing to diff. objects)
+    game.physics.arcade.overlap(bullet, slimes, collisionHandler, null, this);
+
+    // stop movement when keys are not pressed
+  	knight.body.velocity.x = 0;
+    knight.body.velocity.y = 0;
+
+    // prevent defaults (like jQuery)
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
+    this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+
+    // bind knight animations, attack direction, and movement to up, down, left, and right arrows
+    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+      knight.animations.play('walkLeft', 5, false);
+      knight.body.velocity.x = -200;
+      attackingDirection = "attackLeft";
+    }
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+      knight.animations.play('walkRight', 5, false);
+      knight.body.velocity.x = 200;
+      attackingDirection = "attackRight";
+    }
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+      knight.animations.play('walkUp', 5, false);
+      knight.body.velocity.y = -200;
+      attackingDirection = "attackUp";
+    }
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+      knight.animations.play('walkDown', 5, false);
+      knight.body.velocity.y = 200;
+      attackingDirection = "attackDown";
+    }
+
+
+    // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
+    if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+      fireBullet(attackingDirection);
+      knight.animations.play(attackingDirection, 8, false);
+    };
+
+  }
+
+  // create function to clear bullets from the screen
+  function resetBullet (bullet) {
+    bullet.kill();
   };
 
-  // create tile background using one frame from a spritesheet
-	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
-
-  // create instructional text
-  createText();
-
-  // render knight sprite, set initial position, enable physics on this object
-  knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
-  game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
-  game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
-  knight.enableBody = true;
-  knight.collideWorldBounds = true;
-  knight.body.collideWorldBounds = true;
-  knight.anchor.setTo(0.5, 0.5);
-  knight.scale.setTo(1.5, 1.5);
-  
-  
-
-  // render boss sprite based on random number
-  if (rngBoss == "dragon"){
-    boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
-  }else if (rngBoss == "minotaur"){
-    boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss2');
-  };
-
-  // setup slimes group
-  slimes = []
-
-  // render slime sprites and attributes
-  setTimeout(function(){
-    slime1 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime1, Phaser.Physics.ARCADE);
-    slime1.collideWorldBounds = true;
-    slime1.body.bounce.set(1);
-    slime1.health = 1;
-    slime1.enableBody = true;
-    slime1.animations.add('alive', [0, 1, 2, 1]);
-    slime1.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime1.body.collideWorldBounds = true;
-    slime1.body.velocity.x = Math.random()*80;
-    slime1.body.velocity.y = Math.random()*-80;
-    slime1.animations.play('alive', 7, true);
-    slime1.scale.setTo(1.1, 1.1);
-    slimes.push(slime1);
-  }, 6000);  
-
-  setTimeout(function(){
-    slime2 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime2, Phaser.Physics.ARCADE);
-    slime2.collideWorldBounds = true;
-    slime2.body.bounce.set(1);
-    slime2.health = 2;
-    slime2.enableBody = true;
-    slime2.animations.add('alive', [0, 1, 2, 1]);
-    slime2.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime2.body.collideWorldBounds = true;
-    slime2.body.velocity.x = Math.random()*-80;
-    slime2.body.velocity.y = Math.random()*80;
-    slime2.animations.play('alive', 5, true);
-    slime2.scale.setTo(1.2, 1.2);
-    slimes.push(slime2);
-  }, 5000);
-
-  setTimeout(function(){
-    slime3 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime3, Phaser.Physics.ARCADE);
-    slime3.collideWorldBounds = true;
-    slime3.body.bounce.set(1);
-    slime3.health = 3;
-    slime3.enableBody = true;
-    slime3.animations.add('alive', [0, 1, 2, 1]);
-    slime3.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime3.body.collideWorldBounds = true;
-    slime3.body.velocity.x = Math.random()*-80;
-    slime3.body.velocity.y = Math.random()*-80;
-    slime3.animations.play('alive', 4, true);
-    slime3.scale.setTo(1.3, 1.3);
-    slimes.push(slime3);
-  }, 4000);
-
-  setTimeout(function(){
-    slime4 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime4, Phaser.Physics.ARCADE);
-    slime4.collideWorldBounds = true;
-    slime4.body.bounce.set(1);
-    slime4.health = 4;
-    slime4.enableBody = true;
-    slime4.animations.add('alive', [0, 1, 2, 1]);
-    slime4.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime4.body.collideWorldBounds = true;
-    slime4.body.velocity.x = Math.random()*-80;
-    slime4.body.velocity.y = Math.random()*80;
-    slime4.animations.play('alive', 8, true);
-    slime4.scale.setTo(1.4, 1.4);
-    slimes.push(slime4);
-  }, 3000);
-
-  setTimeout(function(){
-    slime5 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime5, Phaser.Physics.ARCADE);
-    slime5.collideWorldBounds = true;
-    slime5.body.bounce.set(1);
-    slime5.health = 5;
-    slime5.enableBody = true;
-    slime5.animations.add('alive', [0, 1, 2, 1]);
-    slime5.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime5.body.collideWorldBounds = true;
-    slime5.body.velocity.x = Math.random()*80;
-    slime5.body.velocity.y = Math.random()*-80;
-    slime5.animations.play('alive', 5, true);
-    slime5.scale.setTo(1.5, 1.5);
-    slimes.push(slime5);
-  }, 2000);
-
-  setTimeout(function(){
-    slime6 = game.add.sprite(Math.random()*600, Math.random()*600, 'slime')
-    game.physics.enable(slime6, Phaser.Physics.ARCADE);
-    slime6.collideWorldBounds = true;
-    slime6.body.bounce.set(1);
-    slime6.health = 6;
-    slime6.enableBody = true;
-    slime6.animations.add('alive', [0, 1, 2, 1]);
-    slime6.animations.add('die', [0, 1, 0, 1, 2, 2]);
-    slime6.body.collideWorldBounds = true;
-    slime6.body.velocity.x = Math.random()*80;
-    slime6.body.velocity.y = Math.random()*80;
-    slime6.animations.play('alive', 6, true);
-    slime6.scale.setTo(1.5, 1.5);
-    slimes.push(slime6);
-  }, 1000);
-
-  // setup boss health, initial position, enable physics on this object
-  boss.health = 10;
-  boss.anchor.setTo(0.5, 0.6);
-  boss.scale.setTo(1.5, 1.5);
-  game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
-  boss.body.immovable = true;
-
-  // setup bullets group
-  bullets = game.add.group();
-  bullets.enableBody = true;
-  bullets.physicsBodyType = Phaser.Physics.ARCADE;
-
-  // individual bullet setup and physics
-  for (var i = 0; i < 20; i++){
-    var b = bullets.create(0, 0, 'bullet');
-    b.name = 'bullet' + i;
-    b.anchor.setTo(0.5, 0.5);
-    b.scale.setTo(1, 1);
-    b.exists = false;
-    b.visible = false;
-    b.checkWorldBounds = true;
-    b.events.onOutOfBounds.add(resetBullet, this);
-  }
-
-  // set up custom animations using .gif or .png spritesheet
-  knight.animations.add('walkDown', [3,4,5,4]);
-
-  knight.animations.add('attackDown', [6, 7, 8, 3]);
-
-  knight.animations.add('walkLeft', [12,13,14,13]);
-
-  knight.animations.add('attackLeft', [15, 16, 17, 12]);
-
-  knight.animations.add('walkRight', [21,22,23,22]);
-
-  knight.animations.add('attackRight', [24, 25, 26, 21]);
-
-  knight.animations.add('walkUp', [30,31,32,31]);
-
-  knight.animations.add('attackUp', [33, 34, 35, 30]);
-
-  knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
-
-  knight.animations.add('spin', [1, 10, 28, 19, 1])
-
-  // set up custom boss animations for each sprite
-  if (rngBoss == "dragon"){
-    boss.animations.add('rise', [ 0, 0, 0, 1, 1, 4, 4, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 4, 6]);
-
-    boss.animations.add('neutral', [4])
-
-    boss.animations.add('flinch', [5, 7, 10]);
-
-    boss.animations.add('die', [5, 7, 5, 4, 9, 8, 9, 10, 1, 0]);
-  }else if(rngBoss == "minotaur"){
-    boss.animations.add('rise', [ 0, 0, 1, 1, 3, 3, 3, 3, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 3, 2, 5]);
-
-    boss.animations.add('neutral', [4])
-
-    boss.animations.add('flinch', [7, 3, 8, 9, 10]);
-
-    boss.animations.add('die', [7, 6, 8, 9, 8, 9, 8, 7, 1, 0, 0]);
-  }
-
-  // opening animations
-  knight.animations.play('spin', 6, false);
-  boss.animations.play('rise', 8, false); 
-}
-
-
-// update game environment
-function update() {
-  // enable collision between knight and boss
-  game.physics.arcade.collide(knight, boss);
-  // enable collision between knight and slimes
-  game.physics.arcade.collide(knight, slimes);
-  // enable collision between slimes and other slimes
-  game.physics.arcade.collide(slimes, slimes);
-  // enable collision between slimes and the boss
-  game.physics.arcade.collide(slimes, boss);
-
-  // enable overlapping physics between bullets and boss
-	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
-  // add slimes and bullets to overlapping physics (physics that do the same thing to diff. objects)
-  game.physics.arcade.overlap(bullet, slimes, collisionHandler, null, this);
-
-  // stop movement when keys are not pressed
-	knight.body.velocity.x = 0;
-  knight.body.velocity.y = 0;
-
-  // prevent defaults (like jQuery) 
-  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
-  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
-  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
-  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
-  this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
-
-  // bind knight animations, attack direction, and movement to up, down, left, and right arrows
-  if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-    knight.animations.play('walkLeft', 5, false);
-    knight.body.velocity.x = -200;
-    attackingDirection = "attackLeft";
-  }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-    knight.animations.play('walkRight', 5, false);
-    knight.body.velocity.x = 200;
-    attackingDirection = "attackRight";
-  }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
-    knight.animations.play('walkUp', 5, false);
-    knight.body.velocity.y = -200;
-    attackingDirection = "attackUp";
-  }
-  else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
-    knight.animations.play('walkDown', 5, false);
-    knight.body.velocity.y = 200;
-    attackingDirection = "attackDown";
-  }
-
-
-  // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
-  if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-    fireBullet(attackingDirection);
-    knight.animations.play(attackingDirection, 8, false);
-  };
-
-}
-
-// create function to clear bullets from the screen
-function resetBullet (bullet) {
-  bullet.kill();
-};
-
-// fires bullets(donuts) in different directions based on attacking direction
-// prevents additional shots based on 'bullet time' (can only fire once per second)
-// bullet time is there because idk how to make all bullets hit 
-// the boss when more than one bullet is on the screen lol PLS FIX
-function fireBullet(direction) {
-  if (game.time.now > bulletTime){
-    bullet = bullets.getFirstExists(false);
-    game.add.tween(bullet).to( { angle: 360 }, 2000, Phaser.Easing.Linear.None, true);
-    if (bullet){
-      if (direction == "attackLeft"){
-        bullet.reset(knight.x - 5, knight.y);
-        bullet.body.velocity.x = -400;
-        bulletTime = game.time.now + 1000;
-      }else if (direction == "attackRight"){
-      	bullet.reset(knight.x + 5, knight.y);
-        bullet.body.velocity.x = 400;
-        bulletTime = game.time.now + 1000;
-      }else if (direction == "attackUp"){
-      	bullet.reset(knight.x, knight.y - 5);
-        bullet.body.velocity.y = -400;
-        bulletTime = game.time.now + 1000;
-      }else if (direction == "attackDown"){
-      	bullet.reset(knight.x, knight.y + 5);
-        bullet.body.velocity.y = 400;
-        bulletTime = game.time.now + 1000;
+  // fires bullets(donuts) in different directions based on attacking direction
+  // prevents additional shots based on 'bullet time' (can only fire once per second)
+  // bullet time is there because idk how to make all bullets hit
+  // the boss when more than one bullet is on the screen lol PLS FIX
+  function fireBullet(direction) {
+    if (game.time.now > bulletTime){
+      bullet = bullets.getFirstExists(false);
+      game.add.tween(bullet).to( { angle: 360 }, 2000, Phaser.Easing.Linear.None, true);
+      if (bullet){
+        if (direction == "attackLeft"){
+          bullet.reset(knight.x - 5, knight.y);
+          bullet.body.velocity.x = -400;
+          bulletTime = game.time.now + 1000;
+        }else if (direction == "attackRight"){
+        	bullet.reset(knight.x + 5, knight.y);
+          bullet.body.velocity.x = 400;
+          bulletTime = game.time.now + 1000;
+        }else if (direction == "attackUp"){
+        	bullet.reset(knight.x, knight.y - 5);
+          bullet.body.velocity.y = -400;
+          bulletTime = game.time.now + 1000;
+        }else if (direction == "attackDown"){
+        	bullet.reset(knight.x, knight.y + 5);
+          bullet.body.velocity.y = 400;
+          bulletTime = game.time.now + 1000;
+        }
       }
     }
   }
-}
 
 
-// handles collision between bullets and enemy
-function collisionHandler (bullet, enemy) {
+  // handles collision between bullets and enemy
+  function collisionHandler (bullet, enemy) {
 
-  // bullets disappear when they hit the enemy and do health damage
-	bullet.kill();
-  enemy.health -= 1;
+    // bullets disappear when they hit the enemy and do health damage
+  	bullet.kill();
+    enemy.health -= 1;
 
-  // if enemy is dead, play death animation and decrement enemy count
-  if (enemy.health == 0){
-    enemiesAlive -= 1;
-    enemy.body.velocity.x = 0;
-    enemy.body.velocity.y = 0;
-    enemy.enableBody = false;
-    enemy.animations.play('die', 5, false);
-    setTimeout(function(){
-      enemy.kill();
-    }, 2000);
-  }else if (enemy.health <= 0){
-    enemy.animations.play('die', 5, false);
-  }else{
-    enemy.animations.play('flinch', 5, false);
-  }
-  
-  // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
-  // delete instructional text, display winning text
-  if (enemiesAlive <= 0){
-  	game.input.keyboard.destroy();
-  	knight.body.velocity.x = 0;
-  	knight.body.velocity.y = 0;
-  	setTimeout(function(){
-      text.kill();
-      won = game.add.sprite(game.world.centerX-130, 20, 'win');
-    	knight.animations.play('victorious', 7, false);
-		}, 2000);
+    // if enemy is dead, play death animation and decrement enemy count
+    if (enemy.health == 0){
+      enemiesAlive -= 1;
+      enemy.body.velocity.x = 0;
+      enemy.body.velocity.y = 0;
+      enemy.enableBody = false;
+      enemy.animations.play('die', 5, false);
+      setTimeout(function(){
+        enemy.kill();
+      }, 2000);
+    }else if (enemy.health <= 0){
+      enemy.animations.play('die', 5, false);
+    }else{
+      enemy.animations.play('flinch', 5, false);
+    }
+
+    // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
+    // delete instructional text, display winning text
+    // a few seconds after that, delete entire game environment, then start new level
+    if (enemiesAlive <= 0){
+    	game.input.keyboard.destroy();
+    	knight.body.velocity.x = 0;
+    	knight.body.velocity.y = 0;
+    	setTimeout(function(){
+        text.kill();
+        won = game.add.sprite(game.world.centerX-130, 20, 'win');
+      	knight.animations.play('victorious', 7, false);
+  		}, 2000);
+      setTimeout(function(){
+        game.destroy();
+        newGame();
+      }, 5000)
+    };
   };
-};
 
-// create and style in-game text
-function createText() {
-  text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
-  text.anchor.setTo(0.5);
+  // create and style in-game text
+  function createText() {
+    text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
+    text.anchor.setTo(0.5);
 
-  text.font = 'Impact';
-  text.fontSize = 40;
-  text.fill = '#7B0000';
+    text.font = 'Impact';
+    text.fontSize = 40;
+    text.fill = '#7B0000';
 
-  text.align = 'center';
-  text.stroke = '#000000';
-  text.strokeThickness = 2;
-  text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
+    text.align = 'center';
+    text.stroke = '#000000';
+    text.strokeThickness = 2;
+    text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
 
-  text.inputEnabled = true;
-  text.input.enableDrag();
+    text.inputEnabled = true;
+    text.input.enableDrag();
+  }
+
+  // fullscreen function (for mobile)
+  function gofull() { game.scale.startFullScreen(false);}
 }
 
-// fullscreen function (for mobile)
-function gofull() { game.scale.startFullScreen(false);}
+newGame();
