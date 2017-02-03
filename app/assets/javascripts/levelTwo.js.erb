@@ -13,9 +13,7 @@ var levelTwo = function() {
   var randomPosition =  function() {
     return Math.random()*600;
   };
-
-
-
+  
   // create game environment
   var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
@@ -206,7 +204,10 @@ var levelTwo = function() {
       } else {
         randomMovement(wizard1);
       }
-    };
+    } else {
+      // destroy random movement event if wizard is dead
+      game.time.events.destroy();
+    }
 
   }
 
