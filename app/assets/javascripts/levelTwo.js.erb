@@ -262,7 +262,7 @@ var levelTwo = function() {
       enemiesAlive -= 1;
       enemy.body.velocity.x = 0;
       enemy.body.velocity.y = 0;
-      enemy.enableBody = false;
+      enemy.body.destroy();
       enemy.animations.play('die', 8, false, true);
     }else if (enemy.health <= 0){
       enemy.animations.play('die', 8, false, true);
