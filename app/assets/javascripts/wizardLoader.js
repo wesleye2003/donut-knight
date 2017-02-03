@@ -4,6 +4,7 @@ var rng = function() {
 
 var setupWizard = function(wizard, animationSpeed) {
   wizard.collideWorldBounds = true;
+  wizard.body.bounce.set(1);
   wizard.health = 0.5;
   wizard.enableBody = true;
   wizard.animations.add('alive', [3, 9, 21, 15, 3]);
@@ -21,6 +22,7 @@ var setupWizard = function(wizard, animationSpeed) {
 }
 
 function randomMovement(enemy) {
+  stopMovement(enemy);
   if (rng() >= 0.5){
     if (rng() >= 0.5){
       enemy.body.velocity.x = (rng()+2)*50;

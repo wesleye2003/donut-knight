@@ -98,6 +98,8 @@ var levelTwo = function() {
     game.physics.enable(wizard1, Phaser.Physics.ARCADE);
     setupWizard(wizard1, 6)
     wizards.push(wizard1);
+    // add randomized movement to wizard
+    game.time.events.repeat(Phaser.Timer.SECOND * 3, 1000, randomMovement, game, wizard1);
 
     // setup boss health, initial position, enable physics on this object
     boss.health = 5;
@@ -185,18 +187,27 @@ var levelTwo = function() {
 
     // play wizard movement animations
     if (wizard1.health >= 1) {
-      if (wizard1.body.velocity.x < 0){
+      if (wizard1.body.velocity.x < 0 &&
+          wizard1.body.velocity.x <= wizard1.body.velocity.y*-1 &&
+          wizard1.body.velocity.x <= wizard1.body.velocity.y){
         wizard1.animations.play('walkLeft', 8, true);
-      } else if (wizard1.body.velocity.x > 0) {
+      } else if (wizard1.body.velocity.x > 0 &&
+                 wizard1.body.velocity.x >= wizard1.body.velocity.y*-1 &&
+                 wizard1.body.velocity.x >= wizard1.body.velocity.y) {
         wizard1.animations.play('walkRight', 8, true);
-      } else if (wizard1.body.velocity.y < 0) {
+      } else if (wizard1.body.velocity.y < 0 &&
+                 wizard1.body.velocity.y < wizard1.body.velocity.x*-1 &&
+                 wizard1.body.velocity.y < wizard1.body.velocity.x) {
         wizard1.animations.play('walkUp', 8, true);
-      } else if (wizard1.body.velocity.y > 0) {
+      } else if (wizard1.body.velocity.y > 0 &&
+                 wizard1.body.velocity.y > wizard1.body.velocity.x*-1 &&
+                 wizard1.body.velocity.y > wizard1.body.velocity.x) {
         wizard1.animations.play('walkDown', 8, true);
       } else {
         randomMovement(wizard1);
       }
     };
+
   }
 
   // create function to clear bullets from the screen
@@ -279,4 +290,9 @@ var levelTwo = function() {
 
   // fullscreen function (for mobile)
   function gofull() { game.scale.startFullScreen(false);}
+}
+
+function stopMovement(sprite) {
+  sprite.body.velocity.x = 0;
+  sprite.body.velocity.y = 0;
 }
