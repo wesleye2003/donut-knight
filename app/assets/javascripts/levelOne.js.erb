@@ -20,7 +20,6 @@ var levelOne = function() {
     return Math.random()*600;
   };
 
-
   // create game environment
   var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
 
@@ -39,7 +38,6 @@ var levelOne = function() {
 
   // create things in the game environment
   function create() {
-
     // set environment bounds
     game.world.setBounds(0, 0, 600, 600);
 
@@ -67,7 +65,6 @@ var levelOne = function() {
 
     // render boss sprite: Minotaur
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
-
 
     // setup slimes group
     slimes = []
@@ -141,40 +138,26 @@ var levelOne = function() {
 
     // set up custom animations using .gif or .png spritesheet
     knight.animations.add('walkDown', [3,4,5,4]);
-
     knight.animations.add('attackDown', [6, 7, 8, 3]);
-
     knight.animations.add('walkLeft', [12,13,14,13]);
-
     knight.animations.add('attackLeft', [15, 16, 17, 12]);
-
     knight.animations.add('walkRight', [21,22,23,22]);
-
     knight.animations.add('attackRight', [24, 25, 26, 21]);
-
     knight.animations.add('walkUp', [30,31,32,31]);
-
     knight.animations.add('attackUp', [33, 34, 35, 30]);
-
-    knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
-
-    knight.animations.add('spin', [1, 10, 28, 19, 1])
+    knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8]);
+    knight.animations.add('spin', [1, 10, 28, 19, 1]);
 
     // set up custom boss animations for each sprite
     boss.animations.add('rise', [ 0, 0, 1, 1, 3, 3, 3, 3, 9, 8, 9, 8, 9, 8, 9, 8, 9, 8, 10, 10, 10, 10, 10, 10, 4, 3, 2, 5]);
-
-    boss.animations.add('neutral', [4])
-
+    boss.animations.add('neutral', [4]);
     boss.animations.add('flinch', [7, 7, 3, 8, 9, 10]);
-
     boss.animations.add('die', [7, 6, 8, 9, 8, 9, 8, 7, 1, 0, 0]);
-
 
     // opening animations
     knight.animations.play('spin', 7, false);
     boss.animations.play('rise', 10, false);
   }
-
 
   // update game environment
   function update() {
@@ -225,13 +208,11 @@ var levelOne = function() {
       attackingDirection = "attackDown";
     }
 
-
     // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
     if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
       fireBullet(attackingDirection);
       knight.animations.play(attackingDirection, 8, false);
     };
-
   }
 
   // create function to clear bullets from the screen
