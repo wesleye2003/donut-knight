@@ -14,6 +14,8 @@ var levelOne = function() {
   var bulletTime = 0;
   var bullet;
   var won;
+  var collisionHasOccurred = false;
+  var knightTookDamage = false;
   var attackingDirection;
   var enemiesAlive = 7;
   var randomPosition =  function() {
@@ -26,6 +28,7 @@ var levelOne = function() {
   // preload all assets
   function preload() {
     game.load.image('win', "<%= asset_path('clear.png') %>");
+    game.load.image('gameOver', "<%= asset_path('end.png') %>");
     game.load.spritesheet('slime', "<%= asset_path('chara6.png') %>", 32, 32);
     game.load.spritesheet('knight', "<%= asset_path('chara5.png') %>", 32, 32);
     game.load.spritesheet('boss', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
@@ -54,7 +57,7 @@ var levelOne = function() {
     createText();
 
     // render knight sprite, set initial position, enable physics on this object
-    knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
+    knight = game.add.sprite(game.world.centerX-100, game.world.centerY, 'knight');
     game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
     game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
     knight.enableBody = true;
@@ -62,6 +65,7 @@ var levelOne = function() {
     knight.body.collideWorldBounds = true;
     knight.anchor.setTo(0.5, 0.5);
     knight.scale.setTo(1.5, 1.5);
+    knight.health = 10;
 
     // render boss sprite: Minotaur
     boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
@@ -71,42 +75,42 @@ var levelOne = function() {
 
     // render slime sprites and attributes
     setTimeout(function(){
-      slime1 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime1 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime1, Phaser.Physics.ARCADE);
       setupSlime(slime1, 1.1, 7);
       slimes.push(slime1);
     }, 6000);
 
     setTimeout(function(){
-      slime2 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime2 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime2, Phaser.Physics.ARCADE);
       setupSlime(slime2, 1.2, 5)
       slimes.push(slime2);
     }, 5000);
 
     setTimeout(function(){
-      slime3 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime3 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime3, Phaser.Physics.ARCADE);
       setupSlime(slime3, 1.3, 4)
       slimes.push(slime3);
     }, 4000);
 
     setTimeout(function(){
-      slime4 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime4 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime4, Phaser.Physics.ARCADE);
       setupSlime(slime4, 1.4, 8)
       slimes.push(slime4);
     }, 3000);
 
     setTimeout(function(){
-      slime5 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime5 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime5, Phaser.Physics.ARCADE);
       setupSlime(slime5, 1.5, 5)
       slimes.push(slime5);
     }, 2000);
 
     setTimeout(function(){
-      slime6 = game.add.sprite(randomPosition(), randomPosition(), 'slime')
+      slime6 = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime')
       game.physics.enable(slime6, Phaser.Physics.ARCADE);
       setupSlime(slime6, 1.5, 6)
       slimes.push(slime6);
@@ -162,9 +166,9 @@ var levelOne = function() {
   // update game environment
   function update() {
     // enable collision between knight and boss
-    game.physics.arcade.collide(knight, boss);
+    game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
     // enable collision between knight and slimes
-    game.physics.arcade.collide(knight, slimes);
+    game.physics.arcade.collide(knight, slimes, enemyPlayerCollisionHandler, null, this);
     // enable collision between slimes and other slimes
     game.physics.arcade.collide(slimes, slimes);
     // enable collision between slimes and the boss
@@ -175,10 +179,6 @@ var levelOne = function() {
     // add slimes and bullets to overlapping physics (physics that do the same thing to diff. objects)
     game.physics.arcade.overlap(bullet, slimes, collisionHandler, null, this);
 
-    // stop movement when keys are not pressed
-  	knight.body.velocity.x = 0;
-    knight.body.velocity.y = 0;
-
     // prevent defaults (like jQuery)
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
@@ -187,25 +187,35 @@ var levelOne = function() {
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
 
     // bind knight animations, attack direction, and movement to up, down, left, and right arrows
-    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-      knight.animations.play('walkLeft', 5, false);
+    if (collisionHasOccurred) {
+
+    } else if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+      knight.animations.play('walkLeft', 8, false);
+      knight.body.velocity.y = 0;
       knight.body.velocity.x = -200;
       attackingDirection = "attackLeft";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-      knight.animations.play('walkRight', 5, false);
+      knight.animations.play('walkRight', 8, false);
+      knight.body.velocity.y = 0;
       knight.body.velocity.x = 200;
       attackingDirection = "attackRight";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
-      knight.animations.play('walkUp', 5, false);
+      knight.animations.play('walkUp', 8, false);
+      knight.body.velocity.x = 0;
       knight.body.velocity.y = -200;
       attackingDirection = "attackUp";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
-      knight.animations.play('walkDown', 5, false);
+      knight.animations.play('walkDown', 8, false);
+      knight.body.velocity.x = 0;
       knight.body.velocity.y = 200;
       attackingDirection = "attackDown";
+    } else {
+      // stop movement when keys are not pressed
+    	knight.body.velocity.x = 0;
+      knight.body.velocity.y = 0;
     }
 
     // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
@@ -250,6 +260,53 @@ var levelOne = function() {
     }
   }
 
+  // handles enemy-knight collisions
+  function enemyPlayerCollisionHandler (knight, enemy) {
+    if (knightTookDamage) {
+
+    } else {
+      collisionHasOccurred = true;
+      knightTookDamage = true;
+      setTimeout(function(){
+        collisionHasOccurred = false;
+      }, 100)
+
+      setTimeout(function(){
+        knightTookDamage = false;
+      }, 500)
+
+      if (knight.body.touching.right){
+        knight.body.velocity.x = -500;
+      } else if (knight.body.touching.left){
+        knight.body.velocity.x = 500;
+      } else if (knight.body.touching.up){
+        knight.body.velocity.y = 500;
+      } else if (knight.body.touching.down){
+        knight.body.velocity.y = -500;
+      }
+
+      console.log('ouch!');
+      knight.health -= 1;
+      console.log(`your health is ${knight.health}`);
+
+      if (knight.health <= 0){
+      	game.input.keyboard.destroy();
+      	knight.body.velocity.x = 0;
+      	knight.body.velocity.y = 0;
+        knight.animations.play('spin', 8, false, true)
+      	setTimeout(function(){
+          text.kill();
+          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
+    		}, 2000);
+        setTimeout(function(){
+          game.destroy();
+          levelOne();
+        }, 5000)
+      };
+    }
+
+  }
+
   // handles collision between bullets and enemy
   function collisionHandler (bullet, enemy) {
 
@@ -263,11 +320,11 @@ var levelOne = function() {
       enemy.body.velocity.x = 0;
       enemy.body.velocity.y = 0;
       enemy.body.destroy();
-      enemy.animations.play('die', 10, false, true);
+      enemy.animations.play('die', 5, false, true);
     }else if (enemy.health <= 0){
-      enemy.animations.play('die', 10, false, true);
+      enemy.animations.play('die', 5, false, true);
     }else{
-      enemy.animations.play('flinch', 10, false);
+      enemy.animations.play('flinch', 8, false);
     }
 
     // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
@@ -308,4 +365,9 @@ var levelOne = function() {
   }
   // fullscreen function (for mobile)
   function gofull() { game.scale.startFullScreen(false);}
+
+  function stopMovement(sprite) {
+    sprite.body.velocity.x = 0;
+    sprite.body.velocity.y = 0;
+  }
 }

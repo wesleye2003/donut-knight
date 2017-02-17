@@ -257,7 +257,7 @@ var levelThree = function() {
 
       setTimeout(function(){
         knightTookDamage = false;
-      }, 2000)
+      }, 500)
 
       if (knight.body.touching.right){
         knight.body.velocity.x = -500;
@@ -279,7 +279,7 @@ var levelThree = function() {
       	knight.body.velocity.y = 0;
         knight.animations.play('spin', 8, false, true)
       	setTimeout(function(){
-          lost = game.add.sprite(game.world.centerX-130, 20, 'gameOver');
+          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
     		}, 2000);
         setTimeout(function(){
           game.destroy();
