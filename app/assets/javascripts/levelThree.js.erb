@@ -10,6 +10,8 @@ var levelThree = function() {
   var bulletTime = 0;
   var bullet;
   var won;
+  var collisionHasOccurred = false;
+  var knightTookDamage = false;
   var attackingDirection;
   var enemiesAlive = 4;
   var randomPosition =  function() {
@@ -22,6 +24,7 @@ var levelThree = function() {
   // preload all assets
   function preload() {
     game.load.image('win', "<%= asset_path('clear.png') %>");
+    game.load.image('gameOver', "<%= asset_path('end.png') %>");
     game.load.spritesheet('bat', "<%= asset_path('monster3.gif') %>", 48, 48, 11);
     game.load.spritesheet('knight', "<%= asset_path('chara5.png') %>", 32, 32);
     game.load.spritesheet('boss', "<%= asset_path('monster5.gif') %>", 80, 80, 11);
@@ -55,6 +58,7 @@ var levelThree = function() {
     knight.body.collideWorldBounds = true;
     knight.anchor.setTo(0.5, 0.5);
     knight.scale.setTo(1.5, 1.5);
+    knight.health = 10;
 
     // set up custom animations using .gif or .png spritesheet
     knight.animations.add('walkDown', [3,4,5,4]);
@@ -75,7 +79,7 @@ var levelThree = function() {
     boss.animations.add('rise', [ 3, 3, 2, 4, 0, 4, 0, 1, 7, 8, 9, 9, 9, 9, 10]);
     boss.animations.add('neutral', [10, 6]);
     boss.animations.add('flinch', [5, 7, 7, 8, 9, 10]);
-    boss.animations.add('die', [8, 9, 9, 9, 10, 1, 2, 4, 3, 0]);
+    boss.animations.add('die', [5, 7, 7, 7, 5, 9, 9, 9, 9, 10, 1, 2, 4, 3, 0]);
 
     // setup bats group
     bats = []
@@ -86,21 +90,21 @@ var levelThree = function() {
     setupBat(bat1, 6);
     bats.push(bat1);
     // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 3, 1000, randomMovement, game, bat1);
+    game.time.events.repeat(Phaser.Timer.SECOND * 2, 1000, randomMovement, game, bat1);
 
     bat2 = game.add.sprite(randomPosition(), randomPosition(), 'bat')
     game.physics.enable(bat2, Phaser.Physics.ARCADE);
     setupBat(bat2, 6);
     bats.push(bat2);
     // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 3, 1500, randomMovement, game, bat2);
+    game.time.events.repeat(Phaser.Timer.SECOND * 3, 1000, randomMovement, game, bat2);
 
     bat3 = game.add.sprite(randomPosition(), randomPosition(), 'bat')
     game.physics.enable(bat3, Phaser.Physics.ARCADE);
     setupBat(bat3, 6);
     bats.push(bat3);
     // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 3, 2000, randomMovement, game, bat3);
+    game.time.events.repeat(Phaser.Timer.SECOND * 2.5, 1000, randomMovement, game, bat3);
 
     // setup boss health, initial position, enable physics on this object
     boss.health = 5;
@@ -134,22 +138,20 @@ var levelThree = function() {
   // update game environment
   function update() {
     // enable collision between knight and boss
-    game.physics.arcade.collide(knight, boss);
+    game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
     // enable collision between knight and bats
     game.physics.arcade.collide(knight, bats, enemyPlayerCollisionHandler, null, this);
     // enable collision between bats and other bats
-    game.physics.arcade.collide(bats, bats, enemyPlayerCollisionHandler, null, this);
+    game.physics.arcade.collide(bats, bats, enemyEnemyCollisionHandler, null, this);
     // enable collision between bats and the boss
-    game.physics.arcade.collide(bats, boss);
+    game.physics.arcade.collide(bats, boss, enemyBossCollisionHandler, null, this);
 
     // enable overlapping physics between bullets and boss
   	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
     // add bats and bullets to overlapping physics (physics that do the same thing to diff. objects)
     game.physics.arcade.overlap(bullet, bats, collisionHandler, null, this);
 
-    // stop movement when keys are not pressed
-  	knight.body.velocity.x = 0;
-    knight.body.velocity.y = 0;
+
 
     // prevent defaults (like jQuery)
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
@@ -159,25 +161,35 @@ var levelThree = function() {
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
 
     // bind knight animations, attack direction, and movement to up, down, left, and right arrows
-    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+    if (collisionHasOccurred) {
+
+    } else if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
       knight.animations.play('walkLeft', 8, false);
+      knight.body.velocity.y = 0;
       knight.body.velocity.x = -200;
       attackingDirection = "attackLeft";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
       knight.animations.play('walkRight', 8, false);
+      knight.body.velocity.y = 0;
       knight.body.velocity.x = 200;
       attackingDirection = "attackRight";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.UP)){
       knight.animations.play('walkUp', 8, false);
+      knight.body.velocity.x = 0;
       knight.body.velocity.y = -200;
       attackingDirection = "attackUp";
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
       knight.animations.play('walkDown', 8, false);
+      knight.body.velocity.x = 0;
       knight.body.velocity.y = 200;
       attackingDirection = "attackDown";
+    } else {
+      // stop movement when keys are not pressed
+    	knight.body.velocity.x = 0;
+      knight.body.velocity.y = 0;
     }
 
     // uses set knight attacking direction to SHOOT F**KING DONUTS FROM HIS SWORD!!!!!
@@ -234,8 +246,86 @@ var levelThree = function() {
   }
 
   function enemyPlayerCollisionHandler (knight, enemy) {
-    enemy.body.velocity.x = 0;
-    enemy.body.velocity.y = 0;
+    if (knightTookDamage) {
+
+    } else {
+      collisionHasOccurred = true;
+      knightTookDamage = true;
+      setTimeout(function(){
+        collisionHasOccurred = false;
+      }, 100)
+
+      setTimeout(function(){
+        knightTookDamage = false;
+      }, 2000)
+
+      if (knight.body.touching.right){
+        knight.body.velocity.x = -500;
+      } else if (knight.body.touching.left){
+        knight.body.velocity.x = 500;
+      } else if (knight.body.touching.up){
+        knight.body.velocity.y = 500;
+      } else if (knight.body.touching.down){
+        knight.body.velocity.y = -500;
+      }
+
+      console.log('ouch!');
+      knight.health -= 1;
+      console.log(`your health is ${knight.health}`);
+
+      if (knight.health <= 0){
+      	game.input.keyboard.destroy();
+      	knight.body.velocity.x = 0;
+      	knight.body.velocity.y = 0;
+        knight.animations.play('spin', 8, false, true)
+      	setTimeout(function(){
+          lost = game.add.sprite(game.world.centerX-130, 20, 'gameOver');
+    		}, 2000);
+        setTimeout(function(){
+          game.destroy();
+          levelThree();
+        }, 5000)
+      };
+    }
+
+  }
+
+  function enemyEnemyCollisionHandler (enemy1, enemy2) {
+    enemy1.body.velocity.x = 0;
+    enemy1.body.velocity.y = 0;
+    if (enemy1.body.touching.right){
+      enemy1.body.velocity.x = -100;
+    } else if (enemy1.body.touching.left){
+      enemy1.body.velocity.x = 100;
+    } else if (enemy1.body.touching.up){
+      enemy1.body.velocity.y = 100;
+    } else if (enemy1.body.touching.down){
+      enemy1.body.velocity.y = -100;
+    }
+
+    enemy2.body.velocity.x = 0;
+    enemy2.body.velocity.y = 0;
+    if (enemy2.body.touching.right){
+      enemy2.body.velocity.x = -100;
+    } else if (enemy2.body.touching.left){
+      enemy2.body.velocity.x = 100;
+    } else if (enemy2.body.touching.up){
+      enemy2.body.velocity.y = 100;
+    } else if (enemy2.body.touching.down){
+      enemy2.body.velocity.y = -100;
+    }
+  }
+
+  function enemyBossCollisionHandler (enemy, boss) {
+    if (enemy.body.touching.right){
+      enemy.body.velocity.x = -100;
+    } else if (enemy.body.touching.left){
+      enemy.body.velocity.x = 100;
+    } else if (enemy.body.touching.up){
+      enemy.body.velocity.y = 100;
+    } else if (enemy.body.touching.down){
+      enemy.body.velocity.y = -100;
+    }
   }
 
   // handles collision between bullets and enemy
