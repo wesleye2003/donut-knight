@@ -187,7 +187,6 @@ var levelThree = function() {
     };
 
     // play bat movement animations
-
     for (var i = 0; i < bats.length; i++) {
       if (bats[i].health >= 1) {
           bats[i].animations.play('walk', 8, true);
@@ -272,7 +271,7 @@ var levelThree = function() {
   		}, 2000);
       setTimeout(function(){
         game.destroy();
-        levelThree();
+        levelFour();
       }, 5000)
     };
   };
