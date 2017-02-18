@@ -8,6 +8,8 @@ var levelTwo = function() {
   var bulletTime = 0;
   var bullet;
   var won;
+  var collisionHasOccurred = false;
+  var knightTookDamage = false;
   var attackingDirection;
   var enemiesAlive = 2;
   var randomPosition =  function() {
@@ -19,6 +21,7 @@ var levelTwo = function() {
 
   // preload all assets
   function preload() {
+    game.load.image('gameOver', "<%= asset_path('end.png') %>");
     game.load.image('win', "<%= asset_path('clear.png') %>");
     game.load.spritesheet('wizard', "<%= asset_path('chara6.png') %>", 32, 32);
     game.load.spritesheet('knight', "<%= asset_path('chara5.png') %>", 32, 32);
