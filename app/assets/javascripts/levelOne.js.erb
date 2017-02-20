@@ -3,7 +3,7 @@ var levelOne = function() {
   var bullet;
   var bulletTime = 0;
   var collisionHasOccurred = false;
-  var knightTookDamage = false;
+  var knightTookDamage = true;
   var enemiesAlive = 7;
   var randomPosition =  function() {
     return Math.random()*600;
@@ -45,6 +45,9 @@ var levelOne = function() {
 
     // render knight sprite, set initial position, enable physics on this object
     knight = setupKnight(game);
+    setTimeout(function(){
+      knightTookDamage = false;
+    }, 3000);
 
     // render boss sprite: Minotaur
     boss = setupMinotaur(game);

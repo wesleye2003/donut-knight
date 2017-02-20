@@ -30,6 +30,8 @@ var setupWizard = function(game, animationSpeed) {
   wizard.body.bounce.set(1);
   wizard.health = 0.5;
   wizard.enableBody = true;
+  wizard.bullets = [];
+  wizard.cooldown = 0;
   wizard.animations.add('alive', [3, 9, 21, 15, 3]);
   wizard.animations.add('die', [3, 9, 21, 15, 3, 9, 21, 15, 3]);
   wizard.animations.add('walkDown', [4, 5, 4, 3, 4]);

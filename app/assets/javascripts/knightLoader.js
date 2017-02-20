@@ -23,5 +23,9 @@ var setupKnight = function(game) {
 
   knightObject.animations.play('spin', 8, false);
 
+  setTimeout(function(){
+    knightTookDamage = false;
+  }, 1000);
+
   return knightObject;
 }

@@ -3,7 +3,7 @@ var levelThree = function() {
   var bulletTime = 0;
   var bullet;
   var collisionHasOccurred = false;
-  var knightTookDamage = false;
+  var knightTookDamage = true;
   var enemiesAlive = 4;
 
   // create game environment
@@ -39,6 +39,9 @@ var levelThree = function() {
 
     // render knight sprite, set initial position, enable physics on this object
     knight = setupKnight(game);
+    setTimeout(function(){
+      knightTookDamage = false;
+    }, 3000);
 
     // render boss sprite: Snake
     boss = setupSnake(game);
