@@ -2,7 +2,10 @@ var rng = function() {
   return Math.random();
 };
 
-var setupSlime = function(slime, scaler, animationSpeed) {
+var setupSlime = function(game, scaler, animationSpeed) {
+  var slime = game.add.sprite(game.world.centerX+100, game.world.centerY, 'slime');
+
+  game.physics.enable(slime, Phaser.Physics.ARCADE);
   slime.collideWorldBounds = true;
   slime.body.bounce.set(1);
   slime.health = 1;
@@ -23,4 +26,6 @@ var setupSlime = function(slime, scaler, animationSpeed) {
   } else {
     slime.body.velocity.y = (rng()-2)*50;
   }
+
+  return slime;
 }

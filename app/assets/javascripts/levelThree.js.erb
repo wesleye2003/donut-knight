@@ -50,36 +50,10 @@ var levelThree = function() {
   	game.add.tileSprite(0, 0, 600, 600, 'background', 2);
 
     // render knight sprite, set initial position, enable physics on this object
-    knight = game.add.sprite(game.world.centerX-150, game.world.centerY, 'knight');
-    game.camera.follow(knight, Phaser.Camera.FOLLOW_LOCKON);
-    game.physics.arcade.enable(knight, Phaser.Physics.ARCADE)
-    knight.enableBody = true;
-    knight.collideWorldBounds = true;
-    knight.body.collideWorldBounds = true;
-    knight.anchor.setTo(0.5, 0.5);
-    knight.scale.setTo(1.5, 1.5);
-    knight.health = 10;
+    knight = setupKnight(game);
 
-    // set up custom animations using .gif or .png spritesheet
-    knight.animations.add('walkDown', [3,4,5,4]);
-    knight.animations.add('attackDown', [6, 7, 8, 3]);
-    knight.animations.add('walkLeft', [12,13,14,13]);
-    knight.animations.add('attackLeft', [15, 16, 17, 12]);
-    knight.animations.add('walkRight', [21,22,23,22]);
-    knight.animations.add('attackRight', [24, 25, 26, 21]);
-    knight.animations.add('walkUp', [30,31,32,31]);
-    knight.animations.add('attackUp', [33, 34, 35, 30]);
-    knight.animations.add('victorious', [1, 1, 1, 6, 7, 16, 34, 25, 6, 7, 7, 8])
-    knight.animations.add('spin', [1, 10, 28, 19, 1]);
-
-    // render boss sprite: Dragon
-    boss = game.add.sprite(game.world.centerX+150, game.world.centerY, 'boss');
-
-    // set up custom boss animations for each sprite
-    boss.animations.add('rise', [ 3, 3, 2, 4, 0, 4, 0, 1, 7, 8, 9, 9, 9, 9, 10]);
-    boss.animations.add('neutral', [10, 6]);
-    boss.animations.add('flinch', [5, 7, 7, 8, 9, 10]);
-    boss.animations.add('die', [5, 7, 7, 7, 5, 9, 9, 9, 9, 10, 1, 2, 4, 3, 0]);
+    // render boss sprite: Snake
+    boss = setupSnake(game);
 
     // setup bats group
     bats = []
@@ -106,13 +80,6 @@ var levelThree = function() {
     // add randomized movement to bat
     game.time.events.repeat(Phaser.Timer.SECOND * 2.5, 1000, randomMovement, game, bat3);
 
-    // setup boss health, initial position, enable physics on this object
-    boss.health = 5;
-    boss.anchor.setTo(0.5, 0.6);
-    boss.scale.setTo(1.5, 1.5);
-    game.physics.arcade.enable(boss, Phaser.Physics.ARCADE)
-    boss.body.immovable = true;
-
     // setup bullets group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -129,10 +96,6 @@ var levelThree = function() {
       b.checkWorldBounds = true;
       b.events.onOutOfBounds.add(resetBullet, this);
     }
-
-    // opening animations
-    knight.animations.play('spin', 8, false);
-    boss.animations.play('rise', 8, false);
   }
 
   // update game environment
@@ -293,6 +256,10 @@ var levelThree = function() {
   function enemyEnemyCollisionHandler (enemy1, enemy2) {
     enemy1.body.velocity.x = 0;
     enemy1.body.velocity.y = 0;
+
+    enemy2.body.velocity.x = 0;
+    enemy2.body.velocity.y = 0;
+
     if (enemy1.body.touching.right){
       enemy1.body.velocity.x = -100;
     } else if (enemy1.body.touching.left){
@@ -303,8 +270,7 @@ var levelThree = function() {
       enemy1.body.velocity.y = -100;
     }
 
-    enemy2.body.velocity.x = 0;
-    enemy2.body.velocity.y = 0;
+
     if (enemy2.body.touching.right){
       enemy2.body.velocity.x = -100;
     } else if (enemy2.body.touching.left){
