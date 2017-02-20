@@ -1,22 +1,9 @@
 var levelOne = function() {
   // set global variables
-  var text = null;
-  var knight;
-  var slime1;
-  var slime2;
-  var slime3;
-  var slime4;
-  var slime5;
-  var slime6;
-  var slimes;
-  var boss;
-  var bullets;
-  var bulletTime = 0;
   var bullet;
-  var won;
+  var bulletTime = 0;
   var collisionHasOccurred = false;
   var knightTookDamage = false;
-  var attackingDirection;
   var enemiesAlive = 7;
   var randomPosition =  function() {
     return Math.random()*600;

@@ -1,22 +1,10 @@
 var levelThree = function() {
   // set global variables
-  var knight;
-  var bat1;
-  var bat2;
-  var bat3;
-  var bats;
-  var boss;
-  var bullets;
   var bulletTime = 0;
   var bullet;
-  var won;
   var collisionHasOccurred = false;
   var knightTookDamage = false;
-  var attackingDirection;
   var enemiesAlive = 4;
-  var randomPosition =  function() {
-    return Math.random()*600;
-  };
 
   // create game environment
   var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
@@ -59,43 +47,17 @@ var levelThree = function() {
     bats = []
 
     // render bat sprites and attributes
-    bat1 = game.add.sprite(randomPosition(), randomPosition(), 'bat')
-    game.physics.enable(bat1, Phaser.Physics.ARCADE);
-    setupBat(bat1, 6);
+    bat1 = setupBat(game);
     bats.push(bat1);
-    // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 2, 1000, randomMovement, game, bat1);
 
-    bat2 = game.add.sprite(randomPosition(), randomPosition(), 'bat')
-    game.physics.enable(bat2, Phaser.Physics.ARCADE);
-    setupBat(bat2, 6);
+    bat2 = setupBat(game);
     bats.push(bat2);
-    // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 3, 1000, randomMovement, game, bat2);
 
-    bat3 = game.add.sprite(randomPosition(), randomPosition(), 'bat')
-    game.physics.enable(bat3, Phaser.Physics.ARCADE);
-    setupBat(bat3, 6);
+    bat3 = setupBat(game);
     bats.push(bat3);
-    // add randomized movement to bat
-    game.time.events.repeat(Phaser.Timer.SECOND * 2.5, 1000, randomMovement, game, bat3);
 
     // setup bullets group
-    bullets = game.add.group();
-    bullets.enableBody = true;
-    bullets.physicsBodyType = Phaser.Physics.ARCADE;
-
-    // individual bullet setup and physics
-    for (var i = 0; i < 20; i++){
-      var b = bullets.create(0, 0, 'bullet');
-      b.name = 'bullet' + i;
-      b.anchor.setTo(0.5, 0.5);
-      b.scale.setTo(1, 1);
-      b.exists = false;
-      b.visible = false;
-      b.checkWorldBounds = true;
-      b.events.onOutOfBounds.add(resetBullet, this);
-    }
+    bullets = setupBullets(game);
   }
 
   // update game environment
@@ -172,11 +134,6 @@ var levelThree = function() {
     }
 
   }
-
-  // create function to clear bullets from the screen
-  function resetBullet (bullet) {
-    bullet.kill();
-  };
 
   // fires bullets(donuts) in different directions based on attacking direction
   // prevents additional shots based on 'bullet time' (can only fire once per second)
