@@ -1,12 +1,18 @@
 # donut-knight
 
 ##Milestones
-* REFACTOR SLIME, KNIGHT, AND BOSS CREATION AS OBJECT ORIENTED JS CONSTRUCTOR FUNCTIONS
-* scale hitboxes
 * life bars/damage indication
-* extra techniques for knight
+* scale hitboxes
 * different AI mechanics for different enemies
+* add non-boss fight screens
 * boss AI
 	* attacks
 	* movement
-	* tactics change(different behaviors based on health)
+* save knight attributes to database, load them on initialization
+* add environment hazards/props/pickups
+* pickups
+* inventory screen
+* experience/leveling system
+* extra techniques for knight
+
+
