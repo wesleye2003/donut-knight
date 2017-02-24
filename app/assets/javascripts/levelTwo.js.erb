@@ -72,7 +72,7 @@ var levelTwo = function() {
   // update game environment
   function update() {
     // enable collision between knight and boss
-    game.physics.arcade.collide(knight, boss);
+    game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
     // enable collision between knight and wizards
     game.physics.arcade.collide(knight, wizards, enemyPlayerCollisionHandler, null, this);
     // enable collision between wizards and other wizards
@@ -282,8 +282,48 @@ var levelTwo = function() {
   }
 
   function enemyPlayerCollisionHandler (knight, enemy) {
-    enemy.body.velocity.x = 0;
-    enemy.body.velocity.y = 0;
+    if (knightTookDamage) {
+
+    } else {
+      collisionHasOccurred = true;
+      knightTookDamage = true;
+      setTimeout(function(){
+        collisionHasOccurred = false;
+      }, 100)
+
+      setTimeout(function(){
+        knightTookDamage = false;
+      }, 500)
+
+      if (knight.body.touching.right){
+        knight.body.velocity.x = -500;
+      } else if (knight.body.touching.left){
+        knight.body.velocity.x = 500;
+      } else if (knight.body.touching.up){
+        knight.body.velocity.y = 500;
+      } else if (knight.body.touching.down){
+        knight.body.velocity.y = -500;
+      }
+
+      console.log('ouch!');
+      knight.health -= 1;
+      console.log(`your health is ${knight.health}`);
+
+      if (knight.health == 0){
+      	game.input.keyboard.destroy();
+      	knight.body.velocity.x = 0;
+      	knight.body.velocity.y = 0;
+        knight.animations.play('spin', 8, false, true)
+      	setTimeout(function(){
+          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
+    		}, 2000);
+        setTimeout(function(){
+          game.destroy();
+          levelTwo();
+        }, 5000)
+      };
+    }
+
   }
 
   // handles collision between bullets and enemy

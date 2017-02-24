@@ -27,7 +27,6 @@ var setupWizard = function(game, animationSpeed) {
   var wizard = game.add.sprite(randomPosition(), randomPosition(), 'wizard');
   game.physics.enable(wizard, Phaser.Physics.ARCADE);
   wizard.collideWorldBounds = true;
-  wizard.body.bounce.set(1);
   wizard.health = 0.5;
   wizard.enableBody = true;
   wizard.bullets = [];
