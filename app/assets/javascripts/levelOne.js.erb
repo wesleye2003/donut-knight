@@ -1,13 +1,17 @@
 var levelOne = function() {
   // set global variables
   var bullet;
+  var hazards = [];
+  var walls = [];
   var bulletTime = 0;
   var collisionHasOccurred = false;
   var knightTookDamage = true;
   var enemiesAlive = 7;
-  var randomPosition =  function() {
-    return Math.random()*600;
-  };
+  function randomPosition() {
+    min = Math.ceil(32);
+    max = Math.floor(568);
+    return Math.random() * (568 - 32) + 16;
+  }
 
   // create game environment
   var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });
@@ -21,6 +25,7 @@ var levelOne = function() {
     game.load.spritesheet('boss', "<%= asset_path('bigmonster2.gif') %>", 80, 80, 11);
     game.load.image('bullet', "<%= asset_path('donut.gif') %>");
     game.load.spritesheet('background', "<%= asset_path('map0.png') %>", 16, 16, 28);
+    game.load.spritesheet('environment', "<%= asset_path('map1.png') %>", 16, 16, 256);
   }
 
   // mobile fullscreen setup
@@ -39,6 +44,27 @@ var levelOne = function() {
 
     // create tile background using one frame from a spritesheet
   	game.add.tileSprite(0, 0, 600, 600, 'background', 8);
+    var topSide = game.add.tileSprite(0, 0, 600, 16, 'background', 7);
+    var bottomSide = game.add.tileSprite(0, 584, 600, 16, 'background', 7);
+    var leftSide = game.add.tileSprite(0, 16, 16, 568, 'background', 6);
+    var rightSide = game.add.tileSprite(584, 16, 16, 568, 'background', 6);
+
+    walls.push(topSide, bottomSide, leftSide, rightSide);
+    game.physics.enable(walls, Phaser.Physics.ARCADE);
+    for(var i = 0; i < walls.length; i++){
+      walls[i].enableBody;
+      walls[i].body.immovable = true;
+    }
+
+    for(var i = 0; i < 8; i++){
+      hazards[i] = game.add.tileSprite(randomPosition(), randomPosition(), 16, 16, 'environment', 195);
+      game.physics.enable(hazards[i], Phaser.Physics.ARCADE);
+      hazards[i].enableBody = true;
+      hazards[i].body.immovable = true;
+      hazards[i].scale.setTo(1.5, 1.5);
+    }
+
+
 
     // create instructional text
     createText();
@@ -100,6 +126,10 @@ var levelOne = function() {
     game.physics.arcade.collide(slimes, slimes);
     // enable collision between slimes and the boss
     game.physics.arcade.collide(slimes, boss);
+
+    game.physics.arcade.collide(knight, hazards);
+
+    game.physics.arcade.collide(knight, walls);
 
     // enable overlapping physics between bullets and boss
   	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);

@@ -6,8 +6,11 @@ var setupKnight = function(game) {
   knightObject.collideWorldBounds = true;
   knightObject.body.collideWorldBounds = true;
   knightObject.anchor.setTo(0.5, 0.5);
-  knightObject.scale.setTo(1.5, 1.5);
-  knightObject.health = 10;
+  knightObject.scale.setTo(1.2, 1.2);
+  knightObject.body.height = 10;
+  knightObject.body.width = 8;
+  knightObject.health = 8;
+  
 
   // set up custom animations using .gif or .png spritesheet
   knightObject.animations.add('walkDown', [3,4,5,4]);
