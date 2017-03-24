@@ -3,7 +3,9 @@ var rng = function() {
 }
 
 var randomPosition =  function() {
-  return rng()*600;
+  min = Math.ceil(32);
+  max = Math.floor(568);
+  return Math.random() * (568 - 32) + 16;
 }
 
 function randomMovement(enemy) {
