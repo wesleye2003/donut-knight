@@ -131,6 +131,8 @@ var levelOne = function() {
 
     game.physics.arcade.collide(knight, walls);
 
+    game.physics.arcade.collide(slimes, walls);
+
     // enable overlapping physics between bullets and boss
   	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
     // add slimes and bullets to overlapping physics (physics that do the same thing to diff. objects)
