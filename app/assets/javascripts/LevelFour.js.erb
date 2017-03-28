@@ -1,13 +1,12 @@
-var levelThree = function() {
+var levelFour = function() {
   // set global variables
   var bulletTime = 0;
   var bullet;
   var hazards = [];
   var walls = [];
-  var wizardBullet;
   var collisionHasOccurred = false;
   var knightTookDamage = true;
-  var enemiesAlive = 3;
+  var enemiesAlive = 6;
   function randomPosition() {
     min = Math.ceil(32);
     max = Math.floor(568);
@@ -19,10 +18,9 @@ var levelThree = function() {
 
   // preload all assets
   function preload() {
-    game.load.image('fireball', "<%= asset_path('fireball.png') %>")
     game.load.image('gameOver', "<%= asset_path('end.png') %>");
     game.load.image('win', "<%= asset_path('clear.png') %>");
-    game.load.spritesheet('wizard', "<%= asset_path('chara6.png') %>", 32, 32);
+    game.load.spritesheet('zombie', "<%= asset_path('ZombieSheet.png') %>", 32, 32);
     game.load.spritesheet('knight', "<%= asset_path('chara5.png') %>", 32, 32);
     game.load.spritesheet('boss', "<%= asset_path('bigmonster1.gif') %>", 80, 80, 11);
     game.load.image('bullet', "<%= asset_path('donut.gif') %>");
@@ -76,52 +74,50 @@ var levelThree = function() {
     // render boss sprite: Dragon
     boss = setupDragon(game);
 
-    // setup wizards group
-    wizards = []
+    // setup zombies group
+    zombies = []
 
-    // render wizard sprites and attributes
-    wizard1 = setupWizard(game, 6);
-    wizards.push(wizard1);
+    // render zombie sprites and attributes
+    zombie1 = setupZombie(game, 6);
+    zombies.push(zombie1);
 
-    wizard2 = setupWizard(game, 6);
-    wizards.push(wizard2);
+    zombie2 = setupZombie(game, 6);
+    zombies.push(zombie2);
+
+    zombie3 = setupZombie(game, 6);
+    zombies.push(zombie3);
+
+    zombie4 = setupZombie(game, 6);
+    zombies.push(zombie4);
+
+    zombie5 = setupZombie(game, 6);
+    zombies.push(zombie5);
 
     // setup bullets group
     bullets = setupBullets(game);
-
-    // setup wizard bullets
-
-
-    for(var w = 0; w < wizards.length; w++){
-      wizards[w].bullets = setupWizardBullets(game);
-    }
   }
 
   // update game environment
   function update() {
     // enable collision between knight and boss
     game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
-    // enable collision between knight and wizards
-    game.physics.arcade.collide(knight, wizards, enemyPlayerCollisionHandler, null, this);
-    // enable collision between wizards and other wizards
-    game.physics.arcade.collide(wizards, wizards);
-    // enable collision between wizards and the boss
-    game.physics.arcade.collide(wizards, boss);
+    // enable collision between knight and zombies
+    game.physics.arcade.collide(knight, zombies, enemyPlayerCollisionHandler, null, this);
+    // enable collision between zombies and other zombies
+    game.physics.arcade.collide(zombies, zombies);
+    // enable collision between zombies and the boss
+    game.physics.arcade.collide(zombies, boss);
 
-    game.physics.arcade.collide(wizards, walls);
+    game.physics.arcade.collide(zombies, walls);
 
     game.physics.arcade.collide(knight, hazards, enemyPlayerCollisionHandler, null, this);
 
     game.physics.arcade.collide(knight, walls);
-    // enable collision between wizard bullets and the player
-    for(var w = 0; w < wizards.length; w++){
-      game.physics.arcade.collide(knight, wizards[w].bullets, playerBulletCollisionHandler, null, this);
-    }
 
     // enable overlapping physics between bullets and boss
   	game.physics.arcade.overlap(bullet, boss, collisionHandler, null, this);
-    // add wizards and bullets to overlapping physics (physics that do the same thing to diff. objects)
-    game.physics.arcade.overlap(bullet, wizards, collisionHandler, null, this);
+    // add zombies and bullets to overlapping physics (physics that do the same thing to diff. objects)
+    game.physics.arcade.overlap(bullet, zombies, collisionHandler, null, this);
 
     // prevent defaults (like jQuery)
     this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
@@ -168,38 +164,33 @@ var levelThree = function() {
       knight.animations.play(attackingDirection, 8, false);
     };
 
-    // play wizard movement animations
-    for (var i = 0; i<wizards.length; i++){
-      var wizard = wizards[i];
-      if (wizard.health >= 1) {
-        if (wizard.body.velocity.x < 0 &&
-            wizard.body.velocity.x <= wizard.body.velocity.y*-1 &&
-            wizard.body.velocity.x <= wizard.body.velocity.y){
-          wizard.animations.play('walkLeft', 8, true);
-        } else if (wizard.body.velocity.x > 0 &&
-                   wizard.body.velocity.x >= wizard.body.velocity.y*-1 &&
-                   wizard.body.velocity.x >= wizard.body.velocity.y) {
-          wizard.animations.play('walkRight', 8, true);
-        } else if (wizard.body.velocity.y < 0 &&
-                   wizard.body.velocity.y < wizard.body.velocity.x*-1 &&
-                   wizard.body.velocity.y < wizard.body.velocity.x) {
-          wizard.animations.play('walkUp', 8, true);
-        } else if (wizard.body.velocity.y > 0 &&
-                   wizard.body.velocity.y > wizard.body.velocity.x*-1 &&
-                   wizard.body.velocity.y > wizard.body.velocity.x) {
-          wizard.animations.play('walkDown', 8, true);
+    // play zombie movement animations
+    for (var i = 0; i<zombies.length; i++){
+      var zombie = zombies[i];
+      if (zombie.health >= 1) {
+        if (zombie.body.velocity.x < 0 &&
+            zombie.body.velocity.x <= zombie.body.velocity.y*-1 &&
+            zombie.body.velocity.x <= zombie.body.velocity.y){
+          zombie.animations.play('walkLeft', 8, true);
+        } else if (zombie.body.velocity.x > 0 &&
+                   zombie.body.velocity.x >= zombie.body.velocity.y*-1 &&
+                   zombie.body.velocity.x >= zombie.body.velocity.y) {
+          zombie.animations.play('walkRight', 8, true);
+        } else if (zombie.body.velocity.y < 0 &&
+                   zombie.body.velocity.y < zombie.body.velocity.x*-1 &&
+                   zombie.body.velocity.y < zombie.body.velocity.x) {
+          zombie.animations.play('walkUp', 8, true);
+        } else if (zombie.body.velocity.y > 0 &&
+                   zombie.body.velocity.y > zombie.body.velocity.x*-1 &&
+                   zombie.body.velocity.y > zombie.body.velocity.x) {
+          zombie.animations.play('walkDown', 8, true);
         } else {
-          randomMovement(wizard);
+          randomMovement(zombie);
         }
-      } else if (wizard.health <= 0) {
-        // destroy random movement event if wizard is dead
+      } else if (zombie.health <= 0) {
+        // destroy random movement event if zombie is dead
         game.time.events.destroy();
       }
-    }
-
-    // allow wizards to shoot bullets
-    for(var w = 0; w < wizards.length; w++){
-      wizardFireBullet(wizards[w], knight);
     }
   }
 
@@ -231,88 +222,6 @@ var levelThree = function() {
         }
       }
     }
-  }
-
-  function wizardFireBullet(wizard, knight) {
-    if (game.time.now > wizard.cooldown){
-      wizardBullet = wizard.bullets.getFirstExists(false);
-      game.add.tween(wizardBullet).to( { angle: 360 }, 2000, Phaser.Easing.Linear.None, true);
-      if (wizardBullet){
-        if (knight.position.x < wizard.position.x &&
-            wizard.position.y - 50 <= knight.position.y &&
-            wizard.position.y + 50 >= knight.position.y){
-          wizardBullet.reset(wizard.position.x, wizard.position.y + 25);
-          wizardBullet.body.velocity.x = -200;
-          wizard.cooldown = game.time.now + 1000;
-        }else if (knight.position.x > wizard.position.x &&
-                  wizard.position.y - 50 <= knight.position.y &&
-                  wizard.position.y + 50 >= knight.position.y){
-        	wizardBullet.reset(wizard.position.x + 50, wizard.position.y + 25);
-          wizardBullet.body.velocity.x = 200;
-          wizard.cooldown = game.time.now + 1000;
-        }else if (knight.position.y < wizard.position.y &&
-                  wizard.position.x - 50 <= knight.position.x &&
-                  wizard.position.x + 50 >= knight.position.x){
-        	wizardBullet.reset(wizard.position.x + 25, wizard.position.y);
-          wizardBullet.body.velocity.y = -200;
-          wizard.cooldown = game.time.now + 1000;
-        }else if (knight.position.y > wizard.position.y &&
-                  wizard.position.x - 50 <= knight.position.x &&
-                  wizard.position.x + 50 >= knight.position.x){
-        	wizardBullet.reset(wizard.position.x + 25, wizard.position.y + 50);
-          wizardBullet.body.velocity.y = 200;
-          wizard.cooldown = game.time.now + 1000;
-        } else {
-
-        }
-      }
-    }
-  }
-
-  function playerBulletCollisionHandler (knight, bullet) {
-    if (knightTookDamage) {
-      bullet.kill();
-    } else {
-      bullet.kill();
-      collisionHasOccurred = true;
-      knightTookDamage = true;
-      setTimeout(function(){
-        collisionHasOccurred = false;
-      }, 100)
-
-      setTimeout(function(){
-        knightTookDamage = false;
-      }, 500)
-
-      if (knight.body.touching.right){
-        knight.body.velocity.x = -500;
-      } else if (knight.body.touching.left){
-        knight.body.velocity.x = 500;
-      } else if (knight.body.touching.up){
-        knight.body.velocity.y = 500;
-      } else if (knight.body.touching.down){
-        knight.body.velocity.y = -500;
-      }
-
-      console.log('ouch!');
-      knight.health -= 1;
-      console.log(`your health is ${knight.health}`);
-
-      if (knight.health == 0){
-      	game.input.keyboard.destroy();
-      	knight.body.velocity.x = 0;
-      	knight.body.velocity.y = 0;
-        knight.animations.play('spin', 8, false, true)
-      	setTimeout(function(){
-          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
-    		}, 2000);
-        setTimeout(function(){
-          game.destroy();
-          levelThree();
-        }, 5000)
-      };
-    }
-
   }
 
   function enemyPlayerCollisionHandler (knight, enemy) {
@@ -353,7 +262,7 @@ var levelThree = function() {
     		}, 2000);
         setTimeout(function(){
           game.destroy();
-          levelThree();
+          levelFour();
         }, 5000)
       };
     }
@@ -373,9 +282,6 @@ var levelThree = function() {
       enemy.body.velocity.x = 0;
       enemy.body.velocity.y = 0;
       enemy.body.destroy();
-      if(enemy.bullets){
-        enemy.bullets.destroy();
-      }
       enemy.animations.play('die', 8, false, true);
     }else if (enemy.health <= 0){
       enemy.animations.play('die', 8, false, true);
@@ -396,7 +302,7 @@ var levelThree = function() {
   		}, 2000);
       setTimeout(function(){
         game.destroy();
-        levelFour();
+        levelFive();
       }, 5000)
     };
   };
