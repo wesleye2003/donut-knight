@@ -7,11 +7,12 @@
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'phaser', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js", 'data-turbolinks-track' => true %>
-  
+
   <%= csrf_meta_tags %>
 </head>
 <body>
 	<div class="game-container">
+    <progress id="health" value="100" max="100"></progress>
 		<%= yield %>
 	</div>
 </body>

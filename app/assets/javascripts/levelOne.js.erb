@@ -64,11 +64,6 @@ var levelOne = function() {
       hazards[i].scale.setTo(1.5, 1.5);
     }
 
-
-
-    // create instructional text
-    createText();
-
     // render knight sprite, set initial position, enable physics on this object
     knight = setupKnight(game);
     setTimeout(function(){
@@ -118,6 +113,9 @@ var levelOne = function() {
 
   // update game environment
   function update() {
+    // Enable live updating health bar
+    let healthBar = document.getElementById("health");
+    healthBar.value = knight.health*10;
     // enable collision between knight and boss
     game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
     // enable collision between knight and slimes
@@ -249,8 +247,7 @@ var levelOne = function() {
       	knight.body.velocity.y = 0;
         knight.animations.play('spin', 8, false, true)
       	setTimeout(function(){
-          text.kill();
-          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
+          lost = game.add.sprite(game.world.centerX-100, 50, 'gameOver');
     		}, 2000);
         setTimeout(function(){
           game.destroy();
@@ -282,15 +279,14 @@ var levelOne = function() {
     }
 
     // if all enemies are dead, stop player movement, make knight hit a sweet spin move,
-    // delete instructional text, display winning text
+    // display winning text
     // a few seconds after that, delete entire game environment, then start new level
     if (enemiesAlive <= 0){
     	game.input.keyboard.destroy();
     	knight.body.velocity.x = 0;
     	knight.body.velocity.y = 0;
     	setTimeout(function(){
-        text.kill();
-        won = game.add.sprite(game.world.centerX-130, 20, 'win');
+        won = game.add.sprite(game.world.centerX-130, 50, 'win');
       	knight.animations.play('victorious', 7, false);
   		}, 2000);
       setTimeout(function(){
@@ -301,22 +297,22 @@ var levelOne = function() {
   };
 
   // create and style in-game text
-  function createText() {
-    text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
-    text.anchor.setTo(0.5);
-
-    text.font = 'Impact';
-    text.fontSize = 40;
-    text.fill = '#7B0000';
-
-    text.align = 'center';
-    text.stroke = '#000000';
-    text.strokeThickness = 2;
-    text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
-
-    text.inputEnabled = true;
-    text.input.enableDrag();
-  }
+  // function createText() {
+  //   text = game.add.text(game.world.centerX, 50, "Fight, Donut Knight!!!\n(arrow keys & spacebar)");
+  //   text.anchor.setTo(0.5);
+  //
+  //   text.font = 'Impact';
+  //   text.fontSize = 40;
+  //   text.fill = '#7B0000';
+  //
+  //   text.align = 'center';
+  //   text.stroke = '#000000';
+  //   text.strokeThickness = 2;
+  //   text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
+  //
+  //   text.inputEnabled = true;
+  //   text.input.enableDrag();
+  // }
   // fullscreen function (for mobile)
   function gofull() { game.scale.startFullScreen(false);}
 

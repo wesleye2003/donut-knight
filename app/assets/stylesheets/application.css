@@ -18,26 +18,47 @@
  	display: none;
 }
 
+#health {
+  height: 10px;
+  width: 90%;
+  margin: 1% 5% 1% 5%;
+  -webkit-appearance: none;
+}
+
+#health[value]::-webkit-progress-value {
+  background-image:
+	   -webkit-linear-gradient(transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0,0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #f44, #09c);
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+    background-color: #ffffff;
+}
+
 body {
  	margin: 0 auto;
- 	width: 600px;
- 	text-align: center;
- 	perspective: 1000px;
+ 	max-width: 600px;
+  width: auto;
+ 	text-align: left;
 }
 
 .game-container{
-	margin-top: 1em;
-	margin-bottom: 1em;
-	border-width:5px;	
+	margin-top: 3em;
+	margin-bottom: -3em;
+  margin-left: 1.5em;
+  margin-right: 20em;
+	border-width:5px;
   border-style:groove;
 	transform: rotateX(-30deg);
-	background-color: #DC8686;
+	background-color: rgb(80, 65, 59);
 	border-radius: 1em;
 }
 
 h1, h3 {
 	font-family: Impact;
-	
+
 }
 
 a {

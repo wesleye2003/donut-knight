@@ -99,6 +99,9 @@ var levelThree = function() {
 
   // update game environment
   function update() {
+    // Enable live updating health bar
+    let healthBar = document.getElementById("health");
+    healthBar.value = knight.health*10;
     // enable collision between knight and boss
     game.physics.arcade.collide(knight, boss, enemyPlayerCollisionHandler, null, this);
     // enable collision between knight and wizards
@@ -349,7 +352,7 @@ var levelThree = function() {
       	knight.body.velocity.y = 0;
         knight.animations.play('spin', 8, false, true)
       	setTimeout(function(){
-          lost = game.add.sprite(game.world.centerX-100, 20, 'gameOver');
+          lost = game.add.sprite(game.world.centerX-100, 50, 'gameOver');
     		}, 2000);
         setTimeout(function(){
           game.destroy();
@@ -391,7 +394,7 @@ var levelThree = function() {
     	knight.body.velocity.x = 0;
     	knight.body.velocity.y = 0;
     	setTimeout(function(){
-        won = game.add.sprite(game.world.centerX-130, 20, 'win');
+        won = game.add.sprite(game.world.centerX-130, 50, 'win');
       	knight.animations.play('victorious', 8, false);
   		}, 2000);
       setTimeout(function(){
