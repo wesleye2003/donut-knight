@@ -7,11 +7,6 @@ var levelTwo = function() {
   var collisionHasOccurred = false;
   var knightTookDamage = true;
   var enemiesAlive = 4;
-  function randomPosition() {
-    min = Math.ceil(32);
-    max = Math.floor(568);
-    return Math.random() * (568 - 32) + 16;
-  }
 
   // create game environment
   var game = new Phaser.Game(600, 600, Phaser.AUTO, 'donut-knight', { preload: preload, create: create, update: update });

@@ -1,13 +1,3 @@
-var rng = function() {
-  return Math.random();
-};
-
-var randomPosition =  function() {
-  min = Math.ceil(32);
-  max = Math.floor(568);
-  return Math.random() * (568 - 32) + 16;
-};
-
 function randomMovement(enemy) {
   stopMovement(enemy);
   if (rng() >= 0.5){

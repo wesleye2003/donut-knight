@@ -16,8 +16,5 @@
 //= require_tree .
 //= require phaser
 //= require application
-//= require levelOne
-//= require levelTwo
-
 
 levelOne();
