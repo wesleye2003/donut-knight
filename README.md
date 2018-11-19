@@ -8,7 +8,8 @@
 - Initialize PostgreSQL on your machine, if it is not already running.
 - Run `bundle exec rake db:create && bundle exec rake db:migrate`
 - Run `rails s` and open your browser to "localhost:3000"
-Note: I have only tested this game in Google Chrome. I have no idea what will happen if you try to run this game in another browser.
+
+**Note: I have only tested this game in Google Chrome. I have no idea what will happen if you try to run this game in another browser.**
 
 ## Milestones
 * life bars/damage indication
